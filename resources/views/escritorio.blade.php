@@ -27,7 +27,7 @@
                     <span class="info-box-icon bg-info elevation-1"><i class="fa-solid fa-hand-holding-dollar"></i></span>
                     <div class="info-box-content">
                         <span class="info-box-text">Ventas General {{ $tienda }}</span>
-                        <span class="info-box-number">{{  number_format($totalventa, 4, '.', ' ') }} <b>$</b></span>
+                        <span class="info-box-number">{{  number_format($totalventa, 2, ',', '.') }} <b>$</b></span>
                     </div>
                 </div>
             </div>
@@ -37,7 +37,7 @@
                     <span class="info-box-icon bg-success elevation-1"><i class="fa-solid fa-dollar-sign"></i></span>
                     <div class="info-box-content">
                         <span class="info-box-text">Ventas a Contado {{ $tienda }}</span>
-                        <span class="info-box-number">{{  number_format($totalvcontado, 4, '.', ' ') }} <b>$</b></span>
+                        <span class="info-box-number">{{  number_format($totalvcontado, 2, ',', '.') }} <b>$</b></span>
                     </div>
                 </div>
             </div>
@@ -49,7 +49,7 @@
                     <span class="info-box-icon bg-warning elevation-1"><i class="fa-solid fa-file-invoice"></i></span>
                     <div class="info-box-content">
                         <span class="info-box-text">Ventas a Credito {{ $tienda }}</span>
-                        <span class="info-box-number">{{  number_format($totalvcredito, 4, '.', ' ') }} <b>$</b></span>
+                        <span class="info-box-number">{{  number_format($totalvcredito, 2, ',', '.') }} <b>$</b></span>
                     </div>
                 </div>
             </div>
