@@ -191,8 +191,8 @@ $(function () {
                     },
                     customize: function ( doc ) {
                        var cols = [];
-                       cols[0] = {text: 'CMEDICAL', alignment: 'left', margin:[20] };
-                       cols[1] = {text: 'ASINCON SOLUCIONES INFORMATICAS', alignment: 'right', margin:[0,0,20] };
+                       cols[0] = {text: 'INTRANET MultimaxStore', alignment: 'left', margin:[20] };
+
                        var objFooter = {};
                        objFooter['columns'] = cols;
                        doc['footer']=objFooter;

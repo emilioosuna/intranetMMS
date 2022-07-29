@@ -59,10 +59,10 @@
 										<th>Fregistro</th>
 										<th>Contado</th>
 										<th>Credito</th>
-										<th>Linea Blanca</th>
-										<th>Linea Menor</th>
-										<th>Linea Marron</th>
-										<th>Aire Acondicionados</th>
+										<th>L Blanca</th>
+										<th>L Menor</th>
+										<th>L Marron</th>
+										<th>A/Acond</th>
 										<th>Celulares</th>
 										<th>Otros</th>
 
@@ -188,20 +188,20 @@ $(function () {
                 },
                 {
                     extend: 'pdfHtml5',
+                    orientation: 'landscape',
                     download: 'open',
                     text:'<i class="fas fa-print"></i> PDF',
                     className: 'btn btn-secondary btn-sm fbuttons sombra',
                     title:'{{ 'Lista de Ventas Registradas' }}',
-                    // orientation: 'landscape',
-                   // pageSize: 'LEGAL',
                    exportOptions: {
                         // columns: ':visible' or
-                        columns: 'th:not(:last-child)',
+                        columns: [0, 1, 2, 4, 5, 6, 7, 8, 9, 10, 11]
+                        //columns: 'th:not(:last-child)',
                     },
                     customize: function ( doc ) {
                        var cols = [];
-                       cols[0] = {text: 'CMEDICAL', alignment: 'left', margin:[20] };
-                       cols[1] = {text: 'ASINCON SOLUCIONES INFORMATICAS', alignment: 'right', margin:[0,0,20] };
+                       cols[0] = {text: 'INTRANET MultimaxStore', alignment: 'left', margin:[20] };
+
                        var objFooter = {};
                        objFooter['columns'] = cols;
                        doc['footer']=objFooter;
@@ -214,7 +214,21 @@ $(function () {
                     //         alignment: 'center',
                     //         image: 'data:image/jpg;base64,...'
                     //     });
+                    doc.styles.tableHeader.fontSize = 10;
+                    doc.defaultStyle.fontSize = 8;
+                    var rowCount = doc.content[1].table.body.length;
+                        for (i = 1; i < rowCount; i++) {
+                            doc.content[1].table.body[i][3].alignment = 'right';
+                            doc.content[1].table.body[i][4].alignment = 'right';
+                            doc.content[1].table.body[i][5].alignment = 'right';
+                            doc.content[1].table.body[i][6].alignment = 'right';
+                            doc.content[1].table.body[i][7].alignment = 'right';
+                            doc.content[1].table.body[i][8].alignment = 'right';
+                            doc.content[1].table.body[i][9].alignment = 'right';
+                            doc.content[1].table.body[i][10].alignment = 'right';
+                        }
                     },
+
                      pageSize : 'LETTER'
                 }
             ],
