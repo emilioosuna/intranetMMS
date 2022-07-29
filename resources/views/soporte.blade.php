@@ -71,7 +71,7 @@
                     @endphp
                    
                     <blockquote style="position: relative;">
-                     <p style="text-align: justify;"> "Herramienta de Control de inventario y almacenes, para conocer el lugar y/o movimiento de tus productos"</p>
+                     <p style="text-align: justify;"> "Herramienta de Control de registro y movimientos de operaciones e INTRANET de <b>MultimaxStore</b>"</p>
                         <blockquote class="pull-right" style="position: relative;">
                             <p style="text-align: justify;">{{ '"' . ($p[$i]["frase"]) . '"'}}</p>
                             <small><cite title="Source Title"><b>{{ ($p[$i]["autor"]) }}</b></cite></small>
