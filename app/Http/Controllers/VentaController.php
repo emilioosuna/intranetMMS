@@ -29,9 +29,9 @@ class VentaController extends Controller
     public function index()
     {
         if(!auth()->user()->tienda){
-            $ventas = Venta::join('tiendas','tiendas.id','=','ventas.tienda_id')->select('ventas.*','tiendas.tienda')->get();
+            $ventas = Venta::join('tiendas','tiendas.id','=','ventas.tienda_id')->select('ventas.*','tiendas.tienda')->orderBy('ventas.fventa','DESC')->get();
         }else{
-            $ventas = Venta::where('ventas.tienda_id',auth()->user()->tienda)->join('tiendas','tiendas.id','=','ventas.tienda_id')->select('ventas.*','tiendas.tienda')->get();
+            $ventas = Venta::where('ventas.tienda_id',auth()->user()->tienda)->join('tiendas','tiendas.id','=','ventas.tienda_id')->select('ventas.*','tiendas.tienda')->orderBy('ventas.fventa','DESC')->get();
         }
 
         //dd($ventas);
