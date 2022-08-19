@@ -246,6 +246,7 @@ return [
                         'text'  => 'Ventas por vendedor',
                         'route' => 'ventas-vendedores.index',
                         'icon'  => 'fas fa-user-tag',
+                        'can' => 'ventas-vendedores.index',
                     ]
                 ],
             ],

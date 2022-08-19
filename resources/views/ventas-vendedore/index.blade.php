@@ -30,7 +30,7 @@
                             <span id="card_title">
                                 {{ __('Ventas Vendedores') }}
                             </span>
-
+                            @can('ventas.create')
                              <div class="float-right">
                                 <a href="{{ route('ventas-vendedores.create') }}" class="btn bg-dark btn-sm float-right"  data-placement="left">
                                   {{ __('Registrar') }}
@@ -39,6 +39,7 @@
                                      <button class="btn btn-sm bg-dark" type="button"><i class="fas fa-download"></i> CSV Formato</button>
                                 </a>
                               </div>
+                            @endcan
                         </div>
                     </div>
                     @if ($message = Session::get('success'))
@@ -72,11 +73,17 @@
 
                                             <td>
                                                 <form action="{{ route('ventas-vendedores.destroy',$ventasVendedore->id) }}" method="POST">
-                                                    <a class="btn btn-sm btn-primary " href="{{ route('ventas-vendedores.show',$ventasVendedore->id) }}"><i class="fa fa-fw fa-eye"></i> Inspeccionar</a>
-                                                    <a class="btn btn-sm btn-success" href="{{ route('ventas-vendedores.edit',$ventasVendedore->id) }}"><i class="fa fa-fw fa-edit"></i> Editar</a>
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="btn btn-danger btn-sm"><i class="fa fa-fw fa-trash"></i> Eliminar</button>
+                                                    @can('ventas-vendedores.show')
+                                                        <a class="btn btn-sm btn-primary " href="{{ route('ventas-vendedores.show',$ventasVendedore->id) }}"><i class="fa fa-fw fa-eye"></i> Inspeccionar</a>
+                                                    @endcan
+                                                    @can('ventas-vendedores.edit')
+                                                        <a class="btn btn-sm btn-success" href="{{ route('ventas-vendedores.edit',$ventasVendedore->id) }}"><i class="fa fa-fw fa-edit"></i> Editar</a>
+                                                    @endcan
+                                                        @csrf
+                                                        @method('DELETE')
+                                                    @can('ventas-vendedores.destroy')
+                                                        <button type="submit" class="btn btn-danger btn-sm"><i class="fa fa-fw fa-trash"></i> Eliminar</button>
+                                                    @endcan
                                                 </form>
                                             </td>
                                         </tr>

@@ -13,16 +13,16 @@ use App\Models\Tienda;
  */
 class VentasVendedoreController extends Controller
 {
-    // public function __construct()
-    // {
-    //     $this->middleware('permission:ventas.index')->only(['index']);
-    //     $this->middleware('permission:ventas.create')->only(['create']);
-    //     $this->middleware('permission:ventas.store')->only(['store']);
-    //     $this->middleware('permission:ventas.show')->only(['show']);
-    //     $this->middleware('permission:ventas.edit')->only(['edit']);
-    //     $this->middleware('permission:ventas.update')->only(['update']);
-    //     $this->middleware('permission:ventas.destroy')->only(['destroy']);
-    // }
+    public function __construct()
+    {
+        $this->middleware('permission:ventas-vendedores.index')->only(['index']);
+        $this->middleware('permission:ventas-vendedores.create')->only(['create']);
+        $this->middleware('permission:ventas-vendedores.store')->only(['store']);
+        $this->middleware('permission:ventas-vendedores.show')->only(['show']);
+        $this->middleware('permission:ventas-vendedores.edit')->only(['edit']);
+        $this->middleware('permission:ventas-vendedores.update')->only(['update']);
+        $this->middleware('permission:ventas-vendedores.destroy')->only(['destroy']);
+    }
 
     /**
      * Display a listing of the resource.
@@ -98,7 +98,7 @@ class VentasVendedoreController extends Controller
 
             //dd($registros);
 
-            DB::table('ventas_vendedor_detalle')->insert($registros);
+           $ventasvendedores=DB::table('ventas_vendedor_detalle')->insert($registros);
             fclose ($datos);
 
            // dd($request,$file,$registros,$data,$vendedor);
