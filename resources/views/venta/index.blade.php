@@ -89,7 +89,7 @@
                                             <td>
                                                 <form action="{{ route('ventas.destroy',$venta->id) }}" method="POST">
                                                     @can('ventas.show')
-                                                        <a class="btn btn-sm btn-primary " href="{{ route('ventas.show',$venta->id) }}"><i class="fa fa-fw fa-eye"></i> Ver</a>
+                                                        <a class="btn btn-sm btn-primary " href="{{ route('ventas.show',$venta->id) }}"><i class="fa fa-fw fa-eye"></i> Inspeccionar</a>
                                                     @endcan
                                                     @can('ventas.edit')
                                                         <a class="btn btn-sm btn-success" href="{{ route('ventas.edit',$venta->id) }}"><i class="fa fa-fw fa-edit"></i> Editar</a>

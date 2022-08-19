@@ -239,7 +239,7 @@ return [
                     [
                         'text'  => 'Gestion',
                         'route' => 'ventas.index',
-                        'icon'  => 'fas fa-file',
+                        'icon'  => 'fas fa-list',
                         'can' => 'ventas.index',
                     ],
                     [

@@ -28,55 +28,130 @@
                     </div>
 
                     <div class="card-body">
-                        
-                        <div class="form-group">
-                            <strong>Tienda:</strong>
-                            {{ $venta->tienda }}
+                            <div class="col-lg-12 ">
+                                <div class="row">
+                                        <div class="form-group col-lg-4">
+                                        <strong>Tienda:</strong>
+                                        {{ $venta->tienda }}
+                                    </div>
+                                    <div class="form-group  col-lg-4">
+                                        <strong>Fventa:</strong>
+                                        {{ $venta->fventa }}
+                                    </div>
+                                    <div class="form-group  col-lg-4">
+                                        <strong>Fregistro:</strong>
+                                        {{ $venta->fregistro }}
+                                    </div>
+                                </div>
+                                 <div class="row">
+                                    <div class="form-group col-lg-4">
+                                        <strong>Contado:</strong>
+                                        {{ $venta->contado }}
+                                    </div>
+                                    <div class="form-group col-lg-4">
+                                        <strong>Credito:</strong>
+                                        {{ $venta->credito }}
+                                    </div>
+                                    <div class="form-group col-lg-4">
+                                        <strong>Total Ventas:</strong>
+                                        {{ $venta->credito + $venta->contado }}
+                                    </div>
+                                </div>
+                                 <div class="row">
+                                    <div class="form-group  col-lg-4">
+                                        <strong>Linea Blanca:</strong>
+                                        {{ $venta->linea_blanca }}
+                                    </div>
+                                    <div class="form-group  col-lg-4">
+                                        <strong>Linea Menor:</strong>
+                                        {{ $venta->linea_menor }}
+                                    </div>
+                                    <div class="form-group  col-lg-4">
+                                        <strong>Linea Marron:</strong>
+                                        {{ $venta->linea_marron }}
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="form-group  col-lg-4">
+                                        <strong>Aire Acondicionados:</strong>
+                                        {{ $venta->aire_acondicionados }}
+                                    </div>
+                                    <div class="form-group  col-lg-4">
+                                        <strong>Celulares:</strong>
+                                        {{ $venta->celulares }}
+                                    </div>
+                                    <div class="form-group  col-lg-4">
+                                        <strong>Otros:</strong>
+                                        {{ $venta->otros }}
+                                    </div>
+                                </div>
+                            </div>
+                            <br>
+                            <div class="col-lg-12">
+                                <div class="card card-primary">
+                                    <div class="card-header border-0">
+                                        <div class="d-flex justify-content-between">
+                                            <h3 class="card-title">Grafica Ventas por Productos </h3>
+                                        </div>
+                                    </div>
+                                    <div class="card-body">
+                                        <figure class="highcharts-figure">
+                                            <div id="container1"></div>
+                                        </figure>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <div class="form-group">
-                            <strong>Fventa:</strong>
-                            {{ $venta->fventa }}
-                        </div>
-                        <div class="form-group">
-                            <strong>Fregistro:</strong>
-                            {{ $venta->fregistro }}
-                        </div>
-                        <div class="form-group">
-                            <strong>Contado:</strong>
-                            {{ $venta->contado }}
-                        </div>
-                        <div class="form-group">
-                            <strong>Credito:</strong>
-                            {{ $venta->credito }}
-                        </div>
-                        <div class="form-group">
-                            <strong>Linea Blanca:</strong>
-                            {{ $venta->linea_blanca }}
-                        </div>
-                        <div class="form-group">
-                            <strong>Linea Menor:</strong>
-                            {{ $venta->linea_menor }}
-                        </div>
-                        <div class="form-group">
-                            <strong>Linea Marron:</strong>
-                            {{ $venta->linea_marron }}
-                        </div>
-                        <div class="form-group">
-                            <strong>Aire Acondicionados:</strong>
-                            {{ $venta->aire_acondicionados }}
-                        </div>
-                        <div class="form-group">
-                            <strong>Celulares:</strong>
-                            {{ $venta->celulares }}
-                        </div>
-                        <div class="form-group">
-                            <strong>Otros:</strong>
-                            {{ $venta->otros }}
-                        </div>
-
                     </div>
                 </div>
             </div>
         </div>
     </section>
 @endsection
+@section('footer')
+@include('footer')
+@stop
+@push('js')
+<script src="{{ asset('highcharts/code/highcharts.js') }}"></script>
+<script src="{{ asset('highcharts/code/highcharts-3d.js') }}"></script>
+<script src="{{ asset('highcharts/code/modules/series-label.js') }}"></script>
+<script src="{{ asset('highcharts/code/modules/exporting.js') }}"></script>
+<script src="{{ asset('highcharts/code/modules/export-data.js') }}"></script>
+<script src="{{ asset('highcharts/code/modules/accessibility.js') }}"></script>
+{{-- /* Graficos */ --}}
+<script type="text/javascript">
+Highcharts.chart('container1', {
+    chart: {
+        type: 'pie',
+        options3d: {
+            enabled: true,
+            alpha: 45
+        }
+    },
+    title: {
+        text: 'Ventas Productos del Día'
+    },
+    subtitle: {
+       text: 'Source: {{ $venta->tienda }} '
+    },
+    plotOptions: {
+        pie: {
+            innerSize: 100,
+            depth: 45
+        }
+    },
+    series: [{
+        name: 'Unidades Vendidas',
+        data: [
+            ['Linea Blanca', {{ $venta->linea_blanca }}],
+            ['Linea Menor', {{ $venta->linea_menor }}],
+            ['Linea Marron', {{ $venta->linea_marron }}],
+            ['Aires Acondicionados', {{ $venta->aire_acondicionados }}],
+            ['Celulares',{{ $venta->celulares }}],
+            ['otros', {{ $venta->otros }}]
+        ]
+    }]
+});
+</script>
+
+@endpush
