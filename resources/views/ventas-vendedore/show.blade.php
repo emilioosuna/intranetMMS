@@ -76,7 +76,7 @@
                                                 @foreach ($vvdetalle as $ventasVendedor)
                                                     <tr>
                                                         <td>{{ $ventasVendedor->vendedor }}</td>
-                                                        <td>{{ $ventasVendedor->montob }}</td>
+                                                        <td>{{ number_format($ventasVendedor->montob, 2, ',', '.') }}</td>
                                                         <td>{{ $ventasVendedor->vunidades }}</td>
                                                     </tr>
                                                 @endforeach
@@ -268,7 +268,7 @@ $(function () {
           'paging'      : true,
           'lengthChange': true,
           'searching'   : true,
-          'ordering'    : false,
+          'ordering'    : true,
           'info'        : true,
           'autoWidth'   : true,
            dom: 'Bfrtip',

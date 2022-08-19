@@ -68,8 +68,8 @@
                                             <td>{{ ++$i }}</td>
                                             
 											<td>{{ $ventasVendedore->tienda }}</td>
-											<td>{{ $ventasVendedore->fdesde }}</td>
-											<td>{{ $ventasVendedore->fdhasta }}</td>
+											<td>{{ implode('/',array_reverse(explode('-', $ventasVendedore->fdesde )))}}</td>
+											<td>{{ implode('/',array_reverse(explode('-', $ventasVendedore->fdhasta )))}}</td>
 
                                             <td>
                                                 <form action="{{ route('ventas-vendedores.destroy',$ventasVendedore->id) }}" method="POST">

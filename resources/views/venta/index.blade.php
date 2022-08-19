@@ -75,10 +75,10 @@
                                             <td>{{ ++$i }}</td>
                                             
 											<td>{{ $venta->tienda }}</td>
-											<td>{{ $venta->fventa }}</td>
-											<td>{{ $venta->fregistro }}</td>
-											<td>{{ $venta->contado }}</td>
-											<td>{{ $venta->credito }}</td>
+											<td>{{ implode('/',array_reverse(explode('-',$venta->fventa )))}}</td>
+											<td>{{ implode('/',array_reverse(explode('-',$venta->fregistro )))}}</td>
+											<td>{{ number_format($venta->contado, 2, ',', '.') }}</td>
+											<td>{{ number_format($venta->credito, 2, ',', '.') }}</td>
 											<td>{{ $venta->linea_blanca }}</td>
 											<td>{{ $venta->linea_menor }}</td>
 											<td>{{ $venta->linea_marron }}</td>
