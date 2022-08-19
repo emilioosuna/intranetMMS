@@ -242,11 +242,11 @@ return [
                         'icon'  => 'fas fa-file',
                         'can' => 'ventas.index',
                     ],
-                    // [
-                    //     'text'  => 'MENU OPCION'
-                    //     'url' => '#',
-                    //     'icon'  => 'fas fa-#',
-                    // ]
+                    [
+                        'text'  => 'Ventas por vendedor',
+                        'route' => 'ventas-vendedores.index',
+                        'icon'  => 'fas fa-user-tag',
+                    ]
                 ],
             ],
             [
