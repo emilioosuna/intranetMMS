@@ -158,6 +158,37 @@ class VentasVendedoreController extends Controller
         request()->validate(VentasVendedore::$rules);
 
         $ventasVendedore->update($request->all());
+        $vvid=$ventasVendedore->id;
+        $ventasvendedores=DB::table('ventas_vendedor_detalle')->where('ventas_vendedor_detalle.vvid',$vvid)->delete();
+            $file=$request->file('prueba');
+
+            $datos =fopen ($file,"r");
+            $i=0;
+            $data = array();
+            $nuevoArreglo=array();
+            $registros=array();
+            while (!feof($datos)) {
+                        $data[] = (fgetcsv($datos,NULL,';'));
+            }
+
+            $tope=count($data);
+            for ($i=1; $i < $tope ; $i++) {
+                if(!empty($data[$i][0])){
+                     $registros[] = [
+                            'vvid'=>$vvid,
+                            'vendedor'=>$data[$i][0],
+                            'montob'=>$data[$i][1],
+                            'vunidades'=>$data[$i][2],
+                           ];
+                }
+
+            }
+
+
+            //dd($registros);
+
+           $ventasvendedores=DB::table('ventas_vendedor_detalle')->insert($registros);
+            fclose ($datos);
 
         return redirect()->route('ventas-vendedores.index')
             ->with('success', 'Ventas Vendedores updated successfully');
