@@ -36,11 +36,11 @@
                                     </div>
                                     <div class="form-group  col-lg-4">
                                         <strong>Fventa:</strong>
-                                        {{ $venta->fventa }}
+                                      {{ implode('/',array_reverse(explode('-',$venta->fventa )))}}
                                     </div>
                                     <div class="form-group  col-lg-4">
                                         <strong>Fregistro:</strong>
-                                        {{ $venta->fregistro }}
+                                      {{ implode('/',array_reverse(explode('-',$venta->fregistro )))}}
                                     </div>
                                 </div>
                                  <div class="row">

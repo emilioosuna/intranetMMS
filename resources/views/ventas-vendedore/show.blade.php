@@ -43,13 +43,13 @@
                             <div class="col-4">
                                 <div class="form-group">
                                     <strong>Fdesde:</strong>
-                                    {{ $ventasVendedore->fdesde }}
+                                   {{ implode('/',array_reverse(explode('-', $ventasVendedore->fdesde )))}}
                                 </div>
                             </div>
                             <div class="col-4">
                                 <div class="form-group">
                                     <strong>Fdhasta:</strong>
-                                    {{ $ventasVendedore->fdhasta }}
+                                    {{ implode('/',array_reverse(explode('-', $ventasVendedore->fdhasta )))}}
                                 </div>
                             </div>
                         </div>
