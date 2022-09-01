@@ -17,6 +17,7 @@ return [
     'title' => 'INTRANET MultimaxStore',
     'title_prefix' => 'IMS - ',
     'title_postfix' => '',
+    'preloader'=> false,
 
     /*
     |--------------------------------------------------------------------------
