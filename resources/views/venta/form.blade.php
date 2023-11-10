@@ -57,7 +57,7 @@
             <div class="col-4">
                 <div class="form-group">
                     {{ Form::label('linea_menor') }}
-                    {{ Form::text('linea_menor', (!$venta->linea_menor ? '0' : $venta->linea_meno), ['class' => 'form-control text-right' . ($errors->has('linea_menor') ? ' is-invalid' : ''), 'placeholder' => 'Linea Menor','onkeypress'=>'return justNumbers(event)']) }}
+                    {{ Form::text('linea_menor', (!$venta->linea_menor ? '0' : $venta->linea_menor), ['class' => 'form-control text-right' . ($errors->has('linea_menor') ? ' is-invalid' : ''), 'placeholder' => 'Linea Menor','onkeypress'=>'return justNumbers(event)']) }}
                     {!! $errors->first('linea_menor', '<div class="invalid-feedback">:message</div>') !!}
                 </div>
             </div>

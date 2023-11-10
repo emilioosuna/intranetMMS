@@ -2,8 +2,8 @@
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\DB;
-use App\Http\Controllers\{UserController,HomeController, VentaController,VentasVendedoreController};
-use App\Models\{Estado,Municipio,Parroquia,User,VentasVendedore};
+use App\Http\Controllers\{UserController,HomeController, VentaController,VentasVendedoreController,FacturasVendedoreController};
+use App\Models\{Estado,Municipio,Parroquia,User,VentasVendedore,FacturasVendedore};
 
 /*
 |--------------------------------------------------------------------------
@@ -50,7 +50,7 @@ Route::resource('ventas', VentaController::class)
          'destroy' => 'ventas.destroy'
 ])->middleware(['auth','verified']);
 
-/*--- Rutas resource para los usuarios ---------------------------------------------*/
+/*--- Rutas resource para los ventas por vendedor ---------------------------------------------*/
 Route::resource('ventas-vendedores', VentasVendedoreController::class)
 ->names([
          'index'   => 'ventas-vendedores.index',
@@ -60,6 +60,18 @@ Route::resource('ventas-vendedores', VentasVendedoreController::class)
          'edit'    => 'ventas-vendedores.edit',
          'update'  => 'ventas-vendedores.update',
          'destroy' => 'ventas-vendedores.destroy'
+])->middleware(['auth','verified']);
+
+/*--- Rutas resource para los facturas por vendedor  ---------------------------------------------*/
+Route::resource('facturas-vendedores', FacturasVendedoreController::class)
+->names([
+         'index'   => 'facturas-vendedores.index',
+         'show'    => 'facturas-vendedores.show',
+         'create'  => 'facturas-vendedores.create',
+         'store'   => 'facturas-vendedores.store',
+         'edit'    => 'facturas-vendedores.edit',
+         'update'  => 'facturas-vendedores.update',
+         'destroy' => 'facturas-vendedores.destroy'
 ])->middleware(['auth','verified']);
 
 Route::get('cambioclave', [UserController::class,'clave'])->name('users.clave')->middleware(['auth','verified']);

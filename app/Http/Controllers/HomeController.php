@@ -48,7 +48,7 @@ class HomeController extends Controller
                 FROM ventas vt
                 WHERE Year(fventa)=$year AND tienda_id=$user->tienda GROUP BY mes";
          }
-         $dgrafvent=DB::connection('mysql')->select(DB::raw($sql));
+         $dgrafvent=DB::connection('mysql')->select($sql);
 
         $totalventa=0;
         $totalvcontado=0;
@@ -83,8 +83,8 @@ class HomeController extends Controller
                             FROM ventas vt
                             WHERE  Month(fventa)='$i' AND Year(fventa)=$year AND tienda_id=$user->tienda GROUP BY mes";
                     }
-                    $dgrafven[$i]=DB::connection('mysql')->select(DB::raw($sql));
-                    $dgrafven2[$i]=DB::connection('mysql')->select(DB::raw($sql2));
+                    $dgrafven[$i]=DB::connection('mysql')->select($sql);
+                    $dgrafven2[$i]=DB::connection('mysql')->select($sql2);
                     if(count($dgrafven[$i])==0){
                         $tven=0;
                         $tvcon=0;
@@ -165,8 +165,8 @@ class HomeController extends Controller
                             FROM ventas vt
                             WHERE  Month(fventa)='$i' AND Year(fventa)=$year AND tienda_id=$user->tienda GROUP BY mes";
                     }
-                    $dgrafven[$i]=DB::connection('mysql')->select(DB::raw($sql));
-                    $dgrafven2[$i]=DB::connection('mysql')->select(DB::raw($sql2));
+                    $dgrafven[$i]=DB::connection('mysql')->select($sql);
+                    $dgrafven2[$i]=DB::connection('mysql')->select($sql2);
                     if(count($dgrafven[$i])==0){
                         $tven=0;
                         $tvcon=0;
@@ -247,8 +247,8 @@ class HomeController extends Controller
                             FROM ventas vt
                             WHERE  Month(fventa)='$i' AND Year(fventa)=$year AND tienda_id=$user->tienda GROUP BY mes";
                     }
-                    $dgrafven[$i]=DB::connection('mysql')->select(DB::raw($sql));
-                    $dgrafven2[$i]=DB::connection('mysql')->select(DB::raw($sql2));
+                    $dgrafven[$i]=DB::connection('mysql')->select($sql);
+                    $dgrafven2[$i]=DB::connection('mysql')->select($sql2);
                     if(count($dgrafven[$i])==0){
                         $tven=0;
                         $tvcon=0;
@@ -329,8 +329,8 @@ class HomeController extends Controller
                             FROM ventas vt
                             WHERE  Month(fventa)='$i' AND Year(fventa)=$year AND tienda_id=$user->tienda GROUP BY mes";
                     }
-                    $dgrafven[$i]=DB::connection('mysql')->select(DB::raw($sql));
-                    $dgrafven2[$i]=DB::connection('mysql')->select(DB::raw($sql2));
+                    $dgrafven[$i]=DB::connection('mysql')->select($sql);
+                    $dgrafven2[$i]=DB::connection('mysql')->select($sql2);
                     if(count($dgrafven[$i])==0){
                         $tven=0;
                         $tvcon=0;
@@ -411,8 +411,8 @@ class HomeController extends Controller
                             FROM ventas vt
                             WHERE  Month(fventa)='$i' AND Year(fventa)=$year AND tienda_id=$user->tienda GROUP BY mes";
                     }
-                    $dgrafven[$i]=DB::connection('mysql')->select(DB::raw($sql));
-                    $dgrafven2[$i]=DB::connection('mysql')->select(DB::raw($sql2));
+                    $dgrafven[$i]=DB::connection('mysql')->select($sql);
+                    $dgrafven2[$i]=DB::connection('mysql')->select($sql2);
                     if(count($dgrafven[$i])==0){
                         $tven=0;
                         $tvcon=0;
@@ -493,8 +493,8 @@ class HomeController extends Controller
                             FROM ventas vt
                             WHERE  Month(fventa)='$i' AND Year(fventa)=$year AND tienda_id=$user->tienda GROUP BY mes";
                     }
-                    $dgrafven[$i]=DB::connection('mysql')->select(DB::raw($sql));
-                    $dgrafven2[$i]=DB::connection('mysql')->select(DB::raw($sql2));
+                    $dgrafven[$i]=DB::connection('mysql')->select($sql);
+                    $dgrafven2[$i]=DB::connection('mysql')->select($sql2);
                     if(count($dgrafven[$i])==0){
                         $tven=0;
                         $tvcon=0;
@@ -575,8 +575,8 @@ class HomeController extends Controller
                             FROM ventas vt
                             WHERE  Month(fventa)='$i' AND Year(fventa)=$year AND tienda_id=$user->tienda GROUP BY mes";
                     }
-                    $dgrafven[$i]=DB::connection('mysql')->select(DB::raw($sql));
-                    $dgrafven2[$i]=DB::connection('mysql')->select(DB::raw($sql2));
+                    $dgrafven[$i]=DB::connection('mysql')->select($sql);
+                    $dgrafven2[$i]=DB::connection('mysql')->select($sql2);
                     if(count($dgrafven[$i])==0){
                         $tven=0;
                         $tvcon=0;
@@ -657,8 +657,8 @@ class HomeController extends Controller
                             FROM ventas vt
                             WHERE  Month(fventa)='$i' AND Year(fventa)=$year AND tienda_id=$user->tienda GROUP BY mes";
                     }
-                    $dgrafven[$i]=DB::connection('mysql')->select(DB::raw($sql));
-                    $dgrafven2[$i]=DB::connection('mysql')->select(DB::raw($sql2));
+                    $dgrafven[$i]=DB::connection('mysql')->select($sql);
+                    $dgrafven2[$i]=DB::connection('mysql')->select($sql2);
                     if(count($dgrafven[$i])==0){
                         $tven=0;
                         $tvcon=0;
@@ -739,8 +739,8 @@ class HomeController extends Controller
                             FROM ventas vt
                             WHERE  Month(fventa)='$i' AND Year(fventa)=$year AND tienda_id=$user->tienda GROUP BY mes";
                     }
-                    $dgrafven[$i]=DB::connection('mysql')->select(DB::raw($sql));
-                    $dgrafven2[$i]=DB::connection('mysql')->select(DB::raw($sql2));
+                    $dgrafven[$i]=DB::connection('mysql')->select($sql);
+                    $dgrafven2[$i]=DB::connection('mysql')->select($sql2);
                     if(count($dgrafven[$i])==0){
                         $tven=0;
                         $tvcon=0;
@@ -821,8 +821,8 @@ class HomeController extends Controller
                             FROM ventas vt
                             WHERE  Month(fventa)='$i' AND Year(fventa)=$year AND tienda_id=$user->tienda GROUP BY mes";
                     }
-                    $dgrafven[$i]=DB::connection('mysql')->select(DB::raw($sql));
-                    $dgrafven2[$i]=DB::connection('mysql')->select(DB::raw($sql2));
+                    $dgrafven[$i]=DB::connection('mysql')->select($sql);
+                    $dgrafven2[$i]=DB::connection('mysql')->select($sql2);
                     if(count($dgrafven[$i])==0){
                         $tven=0;
                         $tvcon=0;
@@ -903,8 +903,8 @@ class HomeController extends Controller
                             FROM ventas vt
                             WHERE  Month(fventa)='$i' AND Year(fventa)=$year AND tienda_id=$user->tienda GROUP BY mes";
                     }
-                    $dgrafven[$i]=DB::connection('mysql')->select(DB::raw($sql));
-                    $dgrafven2[$i]=DB::connection('mysql')->select(DB::raw($sql2));
+                    $dgrafven[$i]=DB::connection('mysql')->select($sql);
+                    $dgrafven2[$i]=DB::connection('mysql')->select($sql2);
                     if(count($dgrafven[$i])==0){
                         $tven=0;
                         $tvcon=0;
@@ -985,8 +985,8 @@ class HomeController extends Controller
                             FROM ventas vt
                             WHERE  Month(fventa)='$i' AND Year(fventa)=$year AND tienda_id=$user->tienda GROUP BY mes";
                     }
-                    $dgrafven[$i]=DB::connection('mysql')->select(DB::raw($sql));
-                    $dgrafven2[$i]=DB::connection('mysql')->select(DB::raw($sql2));
+                    $dgrafven[$i]=DB::connection('mysql')->select($sql);
+                    $dgrafven2[$i]=DB::connection('mysql')->select($sql2);
                     if(count($dgrafven[$i])==0){
                         $tven=0;
                         $tvcon=0;

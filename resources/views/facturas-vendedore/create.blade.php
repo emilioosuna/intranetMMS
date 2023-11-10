@@ -1,7 +1,7 @@
 @extends('adminlte::page')
 
 @section('template_title')
-    Create Venta
+    Create Ventas Facturas Vendedores
 @endsection
 @php
  $n = rand(1,3);
@@ -9,7 +9,7 @@
 @section('content_header')
 <div class="card card-widget widget-user">
 <div class="widget-user-header text-white" style="background: url({{ asset ('img/photo'.$n.'.png') }}) center center;">
-<h3 class="widget-user-username text-right" style="color: black;"><b> Registrar Venta Sistema</b></h3>
+<h3 class="widget-user-username text-right" style="color: black;"><b> Registrar Ventas Facturas Vendedores Sistema</b></h3>
 </div>
 </div>
 @stop
@@ -21,17 +21,17 @@
                 @includeif('partials.errors')
 
                 <div class="card card-info">
-                    <div class="card-header">
-                        <span class="card-title">Create Venta</span>
+                      <div class="card-header">
+                        <span class="card-title">Regitrar Venta Periodo</span>
                            <div class="float-right">
-                           <a class="btn btn-sm bg-dark"  href="{{ route('ventas.index') }}">Volver</a>
+                           <a class="btn btn-sm bg-dark"  href="{{ route('facturas-vendedores.index') }}">Volver</a>
                         </div>
                     </div>
                     <div class="card-body">
-                        <form method="POST" action="{{ route('ventas.store') }}"  role="form" enctype="multipart/form-data">
+                        <form method="POST" action="{{ route('facturas-vendedores.store') }}"  role="form" enctype="multipart/form-data">
                             @csrf
 
-                            @include('venta.form')
+                            @include('facturas-vendedore.form')
 
                         </form>
                     </div>
@@ -40,15 +40,6 @@
         </div>
     </section>
 @endsection
-@push('js')
- <script>
-  function justNumbers(e)
-        {
-        var keynum = window.event ? window.event.keyCode : e.which;
-        if ((keynum == 8) || (keynum == 46)|| (keynum == 45))
-        return true;
-        return /\d/.test(String.fromCharCode(keynum));
-        }
- </script>
-@endpush
-
+@section('footer')
+@include('footer')
+@stop
