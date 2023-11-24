@@ -24,15 +24,15 @@
                     <div class="card-header">
                         <span class="card-title">Editar Venta Periodo</span>
                            <div class="float-right">
-                            <a class="btn btn-sm bg-dark"  href="{{ route('ventas-vendedores.index') }}">Volver</a>
+                            <a class="btn btn-sm bg-dark"  href="{{ route('facturas-vendedores.index') }}">Volver</a>
                         </div>
                     </div>
                     <div class="card-body">
-                        <form method="POST" action="{{ route('ventas-vendedores.update', $ventasVendedore->id) }}"  role="form" enctype="multipart/form-data">
+                        <form method="POST" action="{{ route('facturas-vendedores.update', $facturasVendedore->id) }}"  role="form" enctype="multipart/form-data">
                             {{ method_field('PATCH') }}
                             @csrf
 
-                            @include('ventas-vendedore.form')
+                            @include('facturas-vendedore.form')
 
                         </form>
                     </div>
