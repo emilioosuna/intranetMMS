@@ -157,7 +157,7 @@ class FacturasVendedoreController extends Controller
 
         $facturasVendedore->update($request->all());
          $fvid=$facturasVendedore->id;
-        $facturasVendedores=DB::table('facturas_vendedor_detalle')->where('facturas_vendedor_detalle.fvid',$vvid)->delete();
+        $facturasVendedores=DB::table('facturas_vendedor_detalle')->where('facturas_vendedor_detalle.fvid',$fvid)->delete();
             $file=$request->file('prueba');
 
             $datos =fopen ($file,"r");
@@ -173,7 +173,7 @@ class FacturasVendedoreController extends Controller
             for ($i=1; $i < $tope ; $i++) {
                 if(!empty($data[$i][0])){
                      $registros[] = [
-                            'fvid'=>$vvid,
+                            'fvid'=>$fvid,
                             'vendedor'=>$data[$i][0],
                             'canfac'=>$data[$i][1],
                            ];
