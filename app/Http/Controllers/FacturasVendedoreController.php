@@ -33,10 +33,10 @@ class FacturasVendedoreController extends Controller
     {
         // $facturasVendedores = FacturasVendedore::paginate();
         if(!auth()->user()->tienda){
-            $facturasVendedores = FacturasVendedore::join('tiendas','tiendas.id','=','facturas_vendedores.tienda_id')->select('facturas_vendedores.*','tiendas.tienda')->orderBy('facturas_vendedores.fdesde','DESC')
+            $facturasVendedores = FacturasVendedore::join('tiendas','tiendas.id','=','facturas_vendedores.tienda_id')->select('facturas_vendedores.*','tiendas.tienda')->orderBy('facturas_vendedores.id','DESC') //facturas_vendedores.fdesde'
             ->get();
         }else{
-            $facturasVendedores = FacturasVendedore::where('facturas_vendedores.tienda_id',auth()->user()->tienda)->join('tiendas','tiendas.id','=','facturas_vendedores.tienda_id')->select('facturas_vendedores.*','tiendas.tienda')->orderBy('facturas_vendedores.fdesde','DESC')->get();
+            $facturasVendedores = FacturasVendedore::where('facturas_vendedores.tienda_id',auth()->user()->tienda)->join('tiendas','tiendas.id','=','facturas_vendedores.tienda_id')->select('facturas_vendedores.*','tiendas.tienda')->orderBy('facturas_vendedores.id','DESC')->get(); //,'facturas_vendedores.fdesde'
         }
 
         return view('facturas-vendedore.index', compact('facturasVendedores'))->with('i',0);
