@@ -111,5 +111,22 @@ class RoleSeeder extends Seeder
         ->syncRoles([$rolRoot, $roleAdmin, $roleUserOpe]);
           Permission::create(['name' => 'facturas-vendedores.destroy'])
         ->syncRoles([$rolRoot, $roleAdmin]);
+
+
+         /* Permisos para los roles facturas */
+         Permission::create(['name' => 'vendedores.index'])
+        ->syncRoles([$rolRoot, $roleAdmin, $roleUserOpe, $rolUserGrte]);
+          Permission::create(['name' => 'vendedores.show'])
+        ->syncRoles([$rolRoot, $roleAdmin, $roleUserOpe, $rolUserGrte]);
+          Permission::create(['name' => 'vendedores.create'])
+        ->syncRoles([$rolRoot, $roleAdmin, $roleUserOpe]);
+          Permission::create(['name' => 'vendedores.store'])
+        ->syncRoles([$rolRoot, $roleAdmin, $roleUserOpe]);
+          Permission::create(['name' => 'vendedores.edit'])
+        ->syncRoles([$rolRoot, $roleAdmin, $roleUserOpe]);
+          Permission::create(['name' => 'vendedores.update'])
+        ->syncRoles([$rolRoot, $roleAdmin, $roleUserOpe]);
+          Permission::create(['name' => 'vendedores.destroy'])
+        ->syncRoles([$rolRoot, $roleAdmin]);
    }
 }

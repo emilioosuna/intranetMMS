@@ -2,8 +2,8 @@
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\DB;
-use App\Http\Controllers\{UserController,HomeController, VentaController,VentasVendedoreController,FacturasVendedoreController};
-use App\Models\{Estado,Municipio,Parroquia,User,VentasVendedore,FacturasVendedore};
+use App\Http\Controllers\{UserController,HomeController, VentaController,VentasVendedoreController,FacturasVendedoreController,VendedoreController};
+use App\Models\{Estado,Municipio,Parroquia,User,VentasVendedore,FacturasVendedore,Vendedore};
 
 /*
 |--------------------------------------------------------------------------
@@ -72,6 +72,18 @@ Route::resource('facturas-vendedores', FacturasVendedoreController::class)
          'edit'    => 'facturas-vendedores.edit',
          'update'  => 'facturas-vendedores.update',
          'destroy' => 'facturas-vendedores.destroy'
+])->middleware(['auth','verified']);
+
+/*--- Rutas resource para los usuarios ---------------------------------------------*/
+Route::resource('vendedores', VendedoreController::class)
+->names([
+         'index'   => 'vendedores.index',
+         'show'    => 'vendedores.show',
+         'create'  => 'vendedores.create',
+         'store'   => 'vendedores.store',
+         'edit'    => 'vendedores.edit',
+         'update'  => 'vendedores.update',
+         'destroy' => 'vendedores.destroy'
 ])->middleware(['auth','verified']);
 
 Route::get('cambioclave', [UserController::class,'clave'])->name('users.clave')->middleware(['auth','verified']);

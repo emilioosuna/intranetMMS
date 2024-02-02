@@ -254,6 +254,12 @@ return [
                         'route' => 'facturas-vendedores.index',
                         'icon'  => 'fas fa-user-check',
                         'can' => 'facturas-vendedores.index',
+                    ],
+                     [
+                        'text'  => 'Gestion Asesores',
+                        'route' => 'vendedores.index',
+                        'icon'  => 'fas fa-chart-pie',
+                        'can' => 'vendedores.index',
                     ]
 
                 ],

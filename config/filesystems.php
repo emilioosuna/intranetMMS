@@ -36,6 +36,13 @@ return [
             'throw' => false,
         ],
 
+        'asesores' => [
+            'driver' => 'local',
+            'root' => storage_path('app/public/img/asesores/GNR'),
+            'url' => env('APP_URL').'/img/asesores/GNR',
+            'visibility' => 'public',
+        ],
+
         'public' => [
             'driver' => 'local',
             'root' => storage_path('app/public'),
