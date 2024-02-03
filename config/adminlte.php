@@ -243,12 +243,12 @@ return [
                         'icon'  => 'fas fa-list',
                         'can' => 'ventas.index',
                     ],
-                    // [
-                    //     'text'  => 'Ventas por Asesor',
-                    //     'route' => 'ventas-vendedores.index',
-                    //     'icon'  => 'fas fa-user-tag',
-                    //     'can' => 'ventas-vendedores.index',
-                    // ],
+                    [
+                        'text'  => 'Ventas por Asesor',
+                        'route' => 'ventas-vendedores.index',
+                        'icon'  => 'fas fa-user-tag',
+                        'can' => 'ventas-vendedores.index',
+                    ],
                     [
                         'text'  => 'Facturas por Asesor',
                         'route' => 'facturas-vendedores.index',
