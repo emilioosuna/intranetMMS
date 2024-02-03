@@ -1,7 +1,7 @@
 @extends('adminlte::page')
 
 @section('template_title')
-    {{ 'Ver Gestion Asesor' }}
+    {{ 'Ver Gestion Asesores' }}
 @endsection
 @php
  $n = rand(1,3);
@@ -9,7 +9,7 @@
 @section('content_header')
 <div class="card card-widget widget-user">
 <div class="widget-user-header text-white" style="background: url({{ asset ('img/photo'.$n.'.png') }}) center center;background-size: 100% 100%;">
-<h3 class="widget-user-username text-right" style="color: black;"><b>Ver Gestion Asesor</b></h3>
+<h3 class="widget-user-username text-right" style="color: black;"><b> Ver  Gestion Asesores</b></h3>
 </div>
 </div>
 @stop
