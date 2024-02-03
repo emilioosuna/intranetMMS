@@ -35,28 +35,23 @@
                                 @php
                                     $acumulados=collect($dataano)->sum('canfac');
                                 @endphp
-                                <b>Record Asistencias Acumuladas</b> <a class="float-right">{{ $acumulados }}</a>
+                                <b>Record Asistencias Acumuladas</b> <a class="float-right">{{ $acumulados??0 }}</a>
                             </li>
-                            <li class="list-group-item">
-                                {{--  @php
-                                    date_default_timezone_set("America/Caracas");
-
-                                    setlocale(LC_ALL,'es-ES');
-                                    $mes=strtolower(date('F'));
-                                    dd($mes);
-                                    foreach (collect($dataano) as $value) {
-                                        dd($value->mes);
-                                    }
-                                    $mesactu=collect($dataano)->sum('canfac');
-                                @endphp --}}
-                                <b>Record Asistencias Mes Actual</b> <a class="float-right">543</a>
-                            </li>
-                            <li class="list-group-item">
-                                 @php
-                                    $mesante=collect($dataano)->sum('canfac');
-                                @endphp
-                                <b>Record Asistencias Mes Anterior</b> <a class="float-right">13,287</a>
-                            </li>
+                            @if ($year==date('Y'))
+                                <li class="list-group-item">
+                                    @php
+                                        setlocale(LC_ALL,'es-ES');
+                                        $mes=strftime("%B");
+                                        // dd($mes);
+                                        foreach (collect($dataano) as $value) {
+                                            if($value->mes==$mes){
+                                                $mesactu=$value->canfac;
+                                            }
+                                        }
+                                    @endphp
+                                    <b>Record Asistencias Mes Actual</b> <a class="float-right">{{ $mesactu??0 }}</a>
+                                </li>
+                            @endif
                              <a class="btn btn-primary" href="{{ route('vendedores.index') }}"> {{ __('Volver') }}</a>
                         </ul>
                     </div>
