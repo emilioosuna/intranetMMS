@@ -19,7 +19,7 @@ use App\Models\{Estado,Municipio,Parroquia,User,VentasVendedore,FacturasVendedor
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
 
-Route::get('/escritorio', [HomeController::class, 'escritorio'])->middleware(['auth','verified'])->name('escritorio');
+Route::get('/escritorio/{year?}', [HomeController::class, 'escritorio'])->middleware(['auth','verified'])->name('escritorio');
 
 /*--- Ruta Credito---*/
 Route::get('/creditos', [HomeController::class, 'creditos'])->middleware(['auth','verified'])->name('creditos');

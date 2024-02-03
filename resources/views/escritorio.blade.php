@@ -19,6 +19,17 @@
 
 <div class="card card card-info">
     <div class="card-header">
+         <ul class="nav nav-pills">
+                            <li class="nav-item"><a class="nav-link active bg-info" href="#activity" data-toggle="tab">GESTION</a></li>
+                            <li>
+                                <select name="anoges" id="anoges" class="form-control">
+                                    {{-- <option value="{{ date("Y") }}" selected>{{ date("Y") }}</option> --}}
+                                    @foreach ($dyear as $element)
+                                        <option value="{{ $element->year }}" {{ ($element->year ==($year!=NULL?$year:date('Y'))) ? "selected" : "" }}>{{ $element->year }}</option>
+                                    @endforeach
+                                </select>
+                            </li>
+                        </ul>
     </div>
     <div class="card-body">
         <div class="row">
@@ -264,5 +275,12 @@ Highcharts.chart('container2', {
     ]
   }]
 });
+$(function () {
+ $('#anoges').change(function () {
+        var year = $(this).val();
+            $(location).attr('href','/escritorio/'+year);
+    });
+
+  });
         </script>
 @stop

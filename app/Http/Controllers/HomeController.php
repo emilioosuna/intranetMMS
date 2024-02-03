@@ -32,23 +32,38 @@ class HomeController extends Controller
     {
         return view('auth.login');
     }
-    public function escritorio()
+    public function escritorio($year = null)
     {
         $user = User::find(auth()->user()->id);
-        $year=date('Y');
+        // $year=date('Y');
+
+         if (!$year) {
+            $year=date('Y');
+
+        }
+
+        if($year==date('Y')){
+            $mesc=(int)date('m');
+        }else{
+            $mesc=12;
+        }
+        // dd($year,$mes);
          if(!$user->tienda){
             $tienda='General MultimaxStore';
              $sql="SELECT Month(fventa) AS mes,SUM(contado) AS tcontado ,sum(credito) as tcredito
                 FROM ventas vt
                 WHERE Year(fventa)=$year GROUP BY mes";
+                $sqldy="SELECT YEAR(ventas.fventa) as year FROM `ventas` GROUP BY YEAR(ventas.fventa) ORDER BY YEAR(ventas.fventa) DESC;";
          }else{
             $tiendaid= Tienda::find($user->tienda);
             $tienda=$tiendaid->tienda;
             $sql="SELECT Month(fventa) AS mes,SUM(contado) AS tcontado ,sum(credito) as tcredito
                 FROM ventas vt
                 WHERE Year(fventa)=$year AND tienda_id=$user->tienda GROUP BY mes";
+            $sqldy="SELECT YEAR(ventas.fventa) as year FROM `ventas`  GROUP BY YEAR(ventas.fventa) ORDER BY YEAR(ventas.fventa) DESC;";
          }
-         $dgrafvent=DB::connection('mysql')->select($sql);
+        $dyear=DB::connection('mysql')->select($sqldy);
+        $dgrafvent=DB::connection('mysql')->select($sql);
 
         $totalventa=0;
         $totalvcontado=0;
@@ -59,9 +74,10 @@ class HomeController extends Controller
             $totalventa= $totalvcontado + $totalvcredito;
         }
 
-        for ($i=1;  $i <= date('m'); $i++) {
+        for ($i=1;  $i <= $mesc; $i++) {
+            // dd($i,$mes);
             switch ($i) {
-                case '1':
+                case 1:
                     $mes='ENERO';
                     $abr='ENE';
                     if(!$user->tienda){
@@ -143,7 +159,7 @@ class HomeController extends Controller
                         'totr'=>$totr,
                     ];
                 break;
-                case '2':
+                case 2:
                     $mes='FEBRERO';
                     $abr='FEB';
                     if(!$user->tienda){
@@ -225,7 +241,7 @@ class HomeController extends Controller
                         'totr'=>$totr,
                     ];
                 break;
-                case '3':
+                case 3:
                     $mes='MARZO';
                     $abr='MAR';
                     if(!$user->tienda){
@@ -307,7 +323,7 @@ class HomeController extends Controller
                         'totr'=>$totr,
                     ];
                 break;
-                case '4':
+                case 4:
                     $mes='ABRIL';
                     $abr='ABR';
                     if(!$user->tienda){
@@ -389,7 +405,7 @@ class HomeController extends Controller
                         'totr'=>$totr,
                     ];
                 break;
-                case '5':
+                case 5:
                     $mes='MAYO';
                     $abr='MAY';
                     if(!$user->tienda){
@@ -471,7 +487,7 @@ class HomeController extends Controller
                         'totr'=>$totr,
                     ];
                 break;
-                case '6':
+                case 6:
                     $mes='JUNIO';
                     $abr='JUN';
                     if(!$user->tienda){
@@ -553,7 +569,7 @@ class HomeController extends Controller
                         'totr'=>$totr,
                     ];
                 break;
-                 case '7':
+                 case 7:
                     $mes='JULIO';
                     $abr='JUL';
                     if(!$user->tienda){
@@ -635,7 +651,7 @@ class HomeController extends Controller
                         'totr'=>$totr,
                     ];
                 break;
-                case '8':
+                case 8:
                     $mes='AGOSTO';
                     $abr='AGO';
                     if(!$user->tienda){
@@ -717,7 +733,7 @@ class HomeController extends Controller
                         'totr'=>$totr,
                     ];
                 break;
-                case '9':
+                case 9:
                     $mes='SEPTIEMBRE';
                     $abr='SEP';
                     if(!$user->tienda){
@@ -799,7 +815,7 @@ class HomeController extends Controller
                         'totr'=>$totr,
                     ];
                 break;
-                case '10':
+                case 10:
                     $mes='OCTUBRE';
                     $abr='OCT';
                     if(!$user->tienda){
@@ -881,7 +897,7 @@ class HomeController extends Controller
                         'totr'=>$totr,
                     ];
                 break;
-                case '11':
+                case 11:
                     $mes='NOVIEMBRE';
                     $abr='NOV';
                     if(!$user->tienda){
@@ -963,7 +979,7 @@ class HomeController extends Controller
                         'totr'=>$totr,
                     ];
                 break;
-                case '12':
+                case 12:
                     $mes='DICIEMBRE';
                     $abr='DIC';
                     if(!$user->tienda){
@@ -1049,7 +1065,7 @@ class HomeController extends Controller
         }
 
         //dd($year,$dgrafventas,$dgrafventas2, $totalvcontado,$totalvcredito,$totalventa);
-        return view('escritorio',compact('user','tienda','dgrafventas','dgrafventas2','totalventa','totalvcontado','totalvcredito'));
+        return view('escritorio',compact('user','tienda','dgrafventas','dgrafventas2','totalventa','totalvcontado','totalvcredito','dyear','year'));
     }
     public function creditos()
     {
