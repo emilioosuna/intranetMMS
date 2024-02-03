@@ -89,7 +89,7 @@
                                 <div class="card-header">
                                     <h4 class="card-title w-100">
                                         <a class="d-block w-100" data-toggle="collapse" href="#collapseTwo">
-                                            <h7>Grafico Vendedores Periodo </h7>
+                                            <h7>Grafico Comisiones Vendedores Periodo </h7>
                                         </a>
                                     </h4>
                                 </div>
