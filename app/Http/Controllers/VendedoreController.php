@@ -68,9 +68,13 @@ class VendedoreController extends Controller
      * @param  int $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    // public function show($id)
+    // {
+      public function show($id, $year = null)
     {
-        $year=date('Y');
+        if (!$year) {
+            $year=date('Y');
+        }
         $vendedore = Vendedore::find($id);
         $sql="SELECT YEAR(facturas_vendedores.fdesde) as year FROM `facturas_vendedores` GROUP BY YEAR(facturas_vendedores.fdesde) ORDER BY YEAR(facturas_vendedores.fdesde) DESC;";
         $dyear=DB::connection('mysql')->select($sql);
@@ -108,7 +112,7 @@ class VendedoreController extends Controller
 
 
 
-        return view('vendedore.show', compact('vendedore','dyear','dataano','datadd'));
+        return view('vendedore.show', compact('vendedore','dyear','dataano','datadd','year'));
     }
 
     /**

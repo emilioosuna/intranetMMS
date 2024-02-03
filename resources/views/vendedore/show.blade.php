@@ -95,10 +95,10 @@
                         <ul class="nav nav-pills">
                             <li class="nav-item"><a class="nav-link active bg-info" href="#activity" data-toggle="tab">GESTION</a></li>
                             <li>
-                                <select name="" id="" class="form-control">
+                                <select name="anoges" id="anoges" class="form-control">
                                     {{-- <option value="{{ date("Y") }}" selected>{{ date("Y") }}</option> --}}
                                     @foreach ($dyear as $element)
-                                        <option value="{{ $element->year }}" {{ ($element->year ==date('Y')  ) ? "selected" : "" }}>{{ $element->year }}</option>
+                                        <option value="{{ $element->year }}" {{ ($element->year ==($year!=NULL?$year:date('Y'))) ? "selected" : "" }}>{{ $element->year }}</option>
                                     @endforeach
                                 </select>
                             </li>
@@ -243,6 +243,13 @@
         ]
     }
 });
+$(function () {
+ $('#anoges').change(function () {
+        var year = $(this).val();
+            $(location).attr('href','/vendedores/'+{{ $vendedore->id }}+'/'+year);
+    });
+
+  });
 </script>
 
 {{-- Bootstrap 4 --}} {{-- Javascript --}}

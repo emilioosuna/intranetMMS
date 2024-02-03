@@ -54,7 +54,7 @@ Route::resource('ventas', VentaController::class)
 Route::resource('ventas-vendedores', VentasVendedoreController::class)
 ->names([
          'index'   => 'ventas-vendedores.index',
-         'show'    => 'ventas-vendedores.show',
+         // 'show'    => 'ventas-vendedores.show',
          'create'  => 'ventas-vendedores.create',
          'store'   => 'ventas-vendedores.store',
          'edit'    => 'ventas-vendedores.edit',
@@ -78,13 +78,14 @@ Route::resource('facturas-vendedores', FacturasVendedoreController::class)
 Route::resource('vendedores', VendedoreController::class)
 ->names([
          'index'   => 'vendedores.index',
-         'show'    => 'vendedores.show',
+         // 'show'    => 'vendedores.show',
          'create'  => 'vendedores.create',
          'store'   => 'vendedores.store',
          'edit'    => 'vendedores.edit',
          'update'  => 'vendedores.update',
          'destroy' => 'vendedores.destroy'
 ])->middleware(['auth','verified']);
+Route::get('vendedores/{id}/{year?}', [VendedoreController::class,'show'])->name('vendedores.show')->middleware(['auth']); //,'verified
 
 Route::get('cambioclave', [UserController::class,'clave'])->name('users.clave')->middleware(['auth','verified']);
 Route::put('cambioclave/{user}', [UserController::class,'updateClave'])->name('users.updateClave')->middleware(['auth','verified']);
