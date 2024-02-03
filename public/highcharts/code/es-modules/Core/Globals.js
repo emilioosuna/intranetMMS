@@ -1,6 +1,6 @@
 /* *
  *
- *  (c) 2010-2021 Torstein Honsi
+ *  (c) 2010-2024 Torstein Honsi
  *
  *  License: www.highcharts.com/license
  *
@@ -15,6 +15,7 @@
  * */
 /**
  * Shared Highcharts properties.
+ * @private
  */
 var Globals;
 (function (Globals) {
@@ -23,7 +24,7 @@ var Globals;
      *  Constants
      *
      * */
-    Globals.SVG_NS = 'http://www.w3.org/2000/svg', Globals.product = 'Highcharts', Globals.version = '10.0.0', Globals.win = (typeof window !== 'undefined' ?
+    Globals.SVG_NS = 'http://www.w3.org/2000/svg', Globals.product = 'Highcharts', Globals.version = '11.3.0', Globals.win = (typeof window !== 'undefined' ?
         window :
         {}), // eslint-disable-line node/no-unsupported-features/es-builtins
     Globals.doc = Globals.win.document, Globals.svg = (Globals.doc &&
@@ -37,11 +38,11 @@ var Globals;
         'plotLeft'
     ], Globals.noop = function () { }, Globals.supportsPassiveEvents = (function () {
         // Checks whether the browser supports passive events, (#11353).
-        var supportsPassive = false;
+        let supportsPassive = false;
         // Object.defineProperty doesn't work on IE as well as passive
         // events - instead of using polyfill, we can exclude IE totally.
         if (!Globals.isMS) {
-            var opts = Object.defineProperty({}, 'passive', {
+            const opts = Object.defineProperty({}, 'passive', {
                 get: function () {
                     supportsPassive = true;
                 }
@@ -62,6 +63,12 @@ var Globals;
      * @type {Array<Highcharts.Chart|undefined>}
      */
     Globals.charts = [];
+    /**
+     * A shared registry between all bundles to keep track of applied
+     * compositions.
+     * @private
+     */
+    Globals.composed = [];
     /**
      * A hook for defining additional date format specifiers. New
      * specifiers are defined as key-value pairs by using the

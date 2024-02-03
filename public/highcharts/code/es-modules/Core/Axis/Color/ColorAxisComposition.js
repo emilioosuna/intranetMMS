@@ -1,6 +1,6 @@
 /* *
  *
- *  (c) 2010-2021 Torstein Honsi
+ *  (c) 2010-2024 Torstein Honsi
  *
  *  License: www.highcharts.com/license
  *
@@ -9,9 +9,11 @@
  * */
 'use strict';
 import Color from '../../Color/Color.js';
-var color = Color.parse;
+const { parse: color } = Color;
+import H from '../../Globals.js';
+const { composed } = H;
 import U from '../../Utilities.js';
-var addEvent = U.addEvent, extend = U.extend, merge = U.merge, pick = U.pick, splat = U.splat;
+const { addEvent, extend, merge, pick, pushUnique, splat } = U;
 /* *
  *
  *  Composition
@@ -26,61 +28,41 @@ var ColorAxisComposition;
      * */
     /* *
      *
-     *  Constants
-     *
-     * */
-    var composedClasses = [];
-    /* *
-     *
      *  Variables
      *
      * */
-    var ColorAxisClass;
+    let ColorAxisConstructor;
     /* *
      *
      *  Functions
      *
      * */
-    /* eslint-disable valid-jsdoc */
     /**
      * @private
      */
-    function compose(ColorAxisType, ChartClass, FxClass, LegendClass, SeriesClass) {
-        if (!ColorAxisClass) {
-            ColorAxisClass = ColorAxisType;
-        }
-        if (composedClasses.indexOf(ChartClass) === -1) {
-            composedClasses.push(ChartClass);
-            var chartProto = ChartClass.prototype;
+    function compose(ColorAxisClass, ChartClass, FxClass, LegendClass, SeriesClass) {
+        if (pushUnique(composed, compose)) {
+            ColorAxisConstructor = ColorAxisClass;
+            const chartProto = ChartClass.prototype, fxProto = FxClass.prototype, seriesProto = SeriesClass.prototype;
             chartProto.collectionsWithUpdate.push('colorAxis');
             chartProto.collectionsWithInit.colorAxis = [
                 chartProto.addColorAxis
             ];
             addEvent(ChartClass, 'afterGetAxes', onChartAfterGetAxes);
             wrapChartCreateAxis(ChartClass);
-        }
-        if (composedClasses.indexOf(FxClass) === -1) {
-            composedClasses.push(FxClass);
-            var fxProto = FxClass.prototype;
             fxProto.fillSetter = wrapFxFillSetter;
             fxProto.strokeSetter = wrapFxStrokeSetter;
-        }
-        if (composedClasses.indexOf(LegendClass) === -1) {
-            composedClasses.push(LegendClass);
             addEvent(LegendClass, 'afterGetAllItems', onLegendAfterGetAllItems);
             addEvent(LegendClass, 'afterColorizeItem', onLegendAfterColorizeItem);
             addEvent(LegendClass, 'afterUpdate', onLegendAfterUpdate);
-        }
-        if (composedClasses.indexOf(SeriesClass) === -1) {
-            composedClasses.push(SeriesClass);
-            extend(SeriesClass.prototype, {
+            extend(seriesProto, {
                 optionalAxis: 'colorAxis',
                 translateColors: seriesTranslateColors
             });
-            extend(SeriesClass.prototype.pointClass.prototype, {
+            extend(seriesProto.pointClass.prototype, {
                 setVisible: pointSetVisible
             });
-            addEvent(SeriesClass, 'afterTranslate', onSeriesAfterTranslate);
+            addEvent(SeriesClass, 'afterTranslate', onSeriesAfterTranslate, { order: 1 });
             addEvent(SeriesClass, 'bindAxes', onSeriesBindAxes);
         }
     }
@@ -90,15 +72,13 @@ var ColorAxisComposition;
      * @private
      */
     function onChartAfterGetAxes() {
-        var _this = this;
-        var options = this.options;
+        const { userOptions } = this;
         this.colorAxis = [];
-        if (options.colorAxis) {
-            options.colorAxis = splat(options.colorAxis);
-            options.colorAxis.forEach(function (axisOptions, i) {
-                axisOptions.index = i;
-                new ColorAxisClass(_this, axisOptions); // eslint-disable-line no-new
-            });
+        // If a `colorAxis` config is present in the user options (not in a
+        // theme), instanciate it.
+        if (userOptions.colorAxis) {
+            userOptions.colorAxis = splat(userOptions.colorAxis);
+            userOptions.colorAxis.map((axisOptions) => (new ColorAxisConstructor(this, axisOptions)));
         }
     }
     /**
@@ -107,16 +87,15 @@ var ColorAxisComposition;
      * @private
      */
     function onLegendAfterGetAllItems(e) {
-        var _this = this;
-        var colorAxes = this.chart.colorAxis || [], destroyItem = function (item) {
-            var i = e.allItems.indexOf(item);
+        const colorAxes = this.chart.colorAxis || [], destroyItem = (item) => {
+            const i = e.allItems.indexOf(item);
             if (i !== -1) {
                 // #15436
-                _this.destroyItem(e.allItems[i]);
+                this.destroyItem(e.allItems[i]);
                 e.allItems.splice(i, 1);
             }
         };
-        var colorAxisItems = [], options, i;
+        let colorAxisItems = [], options, i;
         colorAxes.forEach(function (colorAxis) {
             options = colorAxis.options;
             if (options && options.showInLegend) {
@@ -155,7 +134,7 @@ var ColorAxisComposition;
      */
     function onLegendAfterColorizeItem(e) {
         if (e.visible && e.item.legendColor) {
-            e.item.legendSymbol.attr({
+            e.item.legendItem.symbol.attr({
                 fill: e.item.legendColor
             });
         }
@@ -164,13 +143,10 @@ var ColorAxisComposition;
      * Updates in the legend need to be reflected in the color axis. (#6888)
      * @private
      */
-    function onLegendAfterUpdate() {
-        var colorAxes = this.chart.colorAxis;
-        if (colorAxes) {
-            colorAxes.forEach(function (colorAxis) {
-                colorAxis.update({}, arguments[2]);
-            });
-        }
+    function onLegendAfterUpdate(e) {
+        this.chart.colorAxis?.forEach((colorAxis) => {
+            colorAxis.update({}, e.redraw);
+        });
     }
     /**
      * Calculate and set colors for points.
@@ -188,7 +164,7 @@ var ColorAxisComposition;
      * @private
      */
     function onSeriesBindAxes() {
-        var axisTypes = this.axisTypes;
+        const axisTypes = this.axisTypes;
         if (!axisTypes) {
             this.axisTypes = ['colorAxis'];
         }
@@ -203,7 +179,7 @@ var ColorAxisComposition;
      * @param {boolean} visible
      */
     function pointSetVisible(vis) {
-        var point = this, method = vis ? 'show' : 'hide';
+        const point = this, method = vis ? 'show' : 'hide';
         point.visible = point.options.visible = Boolean(vis);
         // Show and hide associated elements
         ['graphic', 'dataLabel'].forEach(function (key) {
@@ -221,16 +197,18 @@ var ColorAxisComposition;
      * @function Highcharts.colorSeriesMixin.translateColors
      */
     function seriesTranslateColors() {
-        var series = this, points = this.data.length ? this.data : this.points, nullColor = this.options.nullColor, colorAxis = this.colorAxis, colorKey = this.colorKey;
-        points.forEach(function (point) {
-            var value = point.getNestedProperty(colorKey), color = point.options.color || (point.isNull || point.value === null ?
+        const series = this, points = this.data.length ? this.data : this.points, nullColor = this.options.nullColor, colorAxis = this.colorAxis, colorKey = this.colorKey;
+        points.forEach((point) => {
+            const value = point.getNestedProperty(colorKey), color = point.options.color || (point.isNull || point.value === null ?
                 nullColor :
                 (colorAxis && typeof value !== 'undefined') ?
                     colorAxis.toColor(value, point) :
                     point.color || series.color);
             if (color && point.color !== color) {
                 point.color = color;
-                if (series.options.legendType === 'point' && point.legendItem) {
+                if (series.options.legendType === 'point' &&
+                    point.legendItem &&
+                    point.legendItem.label) {
                     series.chart.legend.colorizeItem(point, point.visible);
                 }
             }
@@ -240,26 +218,27 @@ var ColorAxisComposition;
      * @private
      */
     function wrapChartCreateAxis(ChartClass) {
-        var superCreateAxis = ChartClass.prototype.createAxis;
+        const superCreateAxis = ChartClass.prototype.createAxis;
         ChartClass.prototype.createAxis = function (type, options) {
+            const chart = this;
             if (type !== 'colorAxis') {
-                return superCreateAxis.apply(this, arguments);
+                return superCreateAxis.apply(chart, arguments);
             }
-            var axis = new ColorAxisClass(this, merge(options.axis, {
-                index: this[type].length,
+            const axis = new ColorAxisConstructor(chart, merge(options.axis, {
+                index: chart[type].length,
                 isX: false
             }));
-            this.isDirtyLegend = true;
+            chart.isDirtyLegend = true;
             // Clear before 'bindAxes' (#11924)
-            this.axes.forEach(function (axis) {
+            chart.axes.forEach((axis) => {
                 axis.series = [];
             });
-            this.series.forEach(function (series) {
+            chart.series.forEach((series) => {
                 series.bindAxes();
                 series.isDirtyData = true;
             });
             if (pick(options.redraw, true)) {
-                this.redraw(options.animation);
+                chart.redraw(options.animation);
             }
             return axis;
         };

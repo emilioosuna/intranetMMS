@@ -1,9 +1,9 @@
 /**
- * @license Highmaps JS v10.0.0 (2022-03-07)
+ * @license Highmaps JS v11.3.0 (2024-01-10)
  * @module highcharts/modules/heatmap
  * @requires highcharts
  *
- * (c) 2009-2021 Torstein Honsi
+ * (c) 2009-2024 Torstein Honsi
  *
  * License: www.highcharts.com/license
  */
@@ -11,6 +11,6 @@
 import Highcharts from '../../Core/Globals.js';
 import ColorAxis from '../../Core/Axis/Color/ColorAxis.js';
 import '../../Series/Heatmap/HeatmapSeries.js';
-var G = Highcharts;
+const G = Highcharts;
 G.ColorAxis = ColorAxis;
 ColorAxis.compose(G.Chart, G.Fx, G.Legend, G.Series);

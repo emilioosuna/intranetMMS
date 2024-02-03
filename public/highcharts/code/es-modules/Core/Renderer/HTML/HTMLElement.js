@@ -1,6 +1,6 @@
 /* *
  *
- *  (c) 2010-2021 Torstein Honsi
+ *  (c) 2010-2024 Torstein Honsi
  *
  *  License: www.highcharts.com/license
  *
@@ -8,35 +8,17 @@
  *
  * */
 'use strict';
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 import H from '../../Globals.js';
-var isFirefox = H.isFirefox, isMS = H.isMS, isWebKit = H.isWebKit, win = H.win;
+const { composed } = H;
 import SVGElement from '../SVG/SVGElement.js';
 import U from '../../Utilities.js';
-var css = U.css, defined = U.defined, extend = U.extend, pick = U.pick, pInt = U.pInt;
+const { css, defined, extend, pushUnique, pInt } = U;
 /* *
  *
  *  Class
  *
  * */
-/* eslint-disable valid-jsdoc */
-var HTMLElement = /** @class */ (function (_super) {
-    __extends(HTMLElement, _super);
-    function HTMLElement() {
-        return _super !== null && _super.apply(this, arguments) || this;
-    }
+class HTMLElement extends SVGElement {
     /* *
      *
      *  Static Functions
@@ -46,10 +28,9 @@ var HTMLElement = /** @class */ (function (_super) {
      * Modifies SVGElement to support HTML elements.
      * @private
      */
-    HTMLElement.compose = function (SVGElementClass) {
-        if (HTMLElement.composedClasses.indexOf(SVGElementClass) === -1) {
-            HTMLElement.composedClasses.push(SVGElementClass);
-            var htmlElementProto = HTMLElement.prototype, svgElementProto = SVGElementClass.prototype;
+    static compose(SVGElementClass) {
+        if (pushUnique(composed, this.compose)) {
+            const htmlElementProto = HTMLElement.prototype, svgElementProto = SVGElementClass.prototype;
             svgElementProto.getSpanCorrection = htmlElementProto
                 .getSpanCorrection;
             svgElementProto.htmlCss = htmlElementProto.htmlCss;
@@ -59,7 +40,7 @@ var HTMLElement = /** @class */ (function (_super) {
             svgElementProto.setSpanRotation = htmlElementProto.setSpanRotation;
         }
         return SVGElementClass;
-    };
+    }
     /* *
      *
      *  Functions
@@ -69,190 +50,155 @@ var HTMLElement = /** @class */ (function (_super) {
      * Get the correction in X and Y positioning as the element is rotated.
      * @private
      */
-    HTMLElement.prototype.getSpanCorrection = function (width, baseline, alignCorrection) {
+    getSpanCorrection(width, baseline, alignCorrection) {
         this.xCorr = -width * alignCorrection;
         this.yCorr = -baseline;
-    };
+    }
     /**
-     * Apply CSS to HTML elements. This is used in text within SVG rendering and
-     * by the VML renderer
+     * Apply CSS to HTML elements. This is used in text within SVG rendering.
      * @private
      */
-    HTMLElement.prototype.htmlCss = function (styles) {
-        var wrapper = this, element = wrapper.element, 
+    htmlCss(styles) {
+        const { element } = this, 
         // When setting or unsetting the width style, we need to update
         // transform (#8809)
         isSettingWidth = (element.tagName === 'SPAN' &&
             styles &&
-            'width' in styles), textWidth = pick(isSettingWidth && styles.width, void 0);
-        var doTransform;
+            'width' in styles), textWidth = isSettingWidth && styles.width;
+        let doTransform;
         if (isSettingWidth) {
             delete styles.width;
-            wrapper.textWidth = textWidth;
+            this.textWidth = pInt(textWidth) || void 0;
             doTransform = true;
         }
-        if (styles && styles.textOverflow === 'ellipsis') {
+        if (styles?.textOverflow === 'ellipsis') {
             styles.whiteSpace = 'nowrap';
             styles.overflow = 'hidden';
         }
-        wrapper.styles = extend(wrapper.styles, styles);
-        css(wrapper.element, styles);
+        extend(this.styles, styles);
+        css(element, styles);
         // Now that all styles are applied, to the transform
         if (doTransform) {
-            wrapper.htmlUpdateTransform();
+            this.htmlUpdateTransform();
         }
-        return wrapper;
-    };
+        return this;
+    }
     /**
-     * VML and useHTML method for calculating the bounding box based on offsets.
+     * The useHTML method for calculating the bounding box based on offsets.
      */
-    HTMLElement.prototype.htmlGetBBox = function () {
-        var wrapper = this, element = wrapper.element;
+    htmlGetBBox() {
+        const { element } = this;
         return {
             x: element.offsetLeft,
             y: element.offsetTop,
             width: element.offsetWidth,
             height: element.offsetHeight
         };
-    };
+    }
     /**
-     * VML override private method to update elements based on internal
-     * properties based on SVG transform.
      * @private
      */
-    HTMLElement.prototype.htmlUpdateTransform = function () {
-        // aligning non added elements is expensive
+    htmlUpdateTransform() {
+        // Aligning non added elements is expensive
         if (!this.added) {
             this.alignOnAdd = true;
             return;
         }
-        var wrapper = this, renderer = wrapper.renderer, elem = wrapper.element, translateX = wrapper.translateX || 0, translateY = wrapper.translateY || 0, x = wrapper.x || 0, y = wrapper.y || 0, align = wrapper.textAlign || 'left', alignCorrection = {
+        const { element, renderer, rotation, styles, textAlign = 'left', textWidth, translateX = 0, translateY = 0, x = 0, y = 0 } = this, alignCorrection = {
             left: 0, center: 0.5, right: 1
-        }[align], styles = wrapper.styles, whiteSpace = styles && styles.whiteSpace;
-        /** @private */
-        function getTextPxLength() {
-            if (wrapper.textPxLength) {
-                return wrapper.textPxLength;
+        }[textAlign], whiteSpace = styles?.whiteSpace;
+        // Get the pixel length of the text
+        const getTextPxLength = () => {
+            if (this.textPxLength) {
+                return this.textPxLength;
             }
             // Reset multiline/ellipsis in order to read width (#4928,
             // #5417)
-            css(elem, {
+            css(element, {
                 width: '',
                 whiteSpace: whiteSpace || 'nowrap'
             });
-            return elem.offsetWidth;
-        }
-        // apply translate
-        css(elem, {
-            marginLeft: translateX,
-            marginTop: translateY
+            return element.offsetWidth;
+        };
+        // Apply translate
+        css(element, {
+            marginLeft: `${translateX}px`,
+            marginTop: `${translateY}px`
         });
-        if (!renderer.styledMode && wrapper.shadows) { // used in labels/tooltip
-            wrapper.shadows.forEach(function (shadow) {
-                css(shadow, {
-                    marginLeft: translateX + 1,
-                    marginTop: translateY + 1
-                });
-            });
-        }
-        // apply inversion
-        if (wrapper.inverted) { // wrapper is a group
-            [].forEach.call(elem.childNodes, function (child) {
-                renderer.invertChild(child, elem);
-            });
-        }
-        if (elem.tagName === 'SPAN') {
-            var rotation = wrapper.rotation, textWidth = wrapper.textWidth && pInt(wrapper.textWidth), currentTextTransform = [
+        if (element.tagName === 'SPAN') {
+            const currentTextTransform = [
                 rotation,
-                align,
-                elem.innerHTML,
-                wrapper.textWidth,
-                wrapper.textAlign
+                textAlign,
+                element.innerHTML,
+                textWidth,
+                this.textAlign
             ].join(',');
-            var baseline = void 0, hasBoxWidthChanged = false;
+            let baseline, hasBoxWidthChanged = false;
             // Update textWidth. Use the memoized textPxLength if possible, to
             // avoid the getTextPxLength function using elem.offsetWidth.
             // Calling offsetWidth affects rendering time as it forces layout
             // (#7656).
-            if (textWidth !== wrapper.oldTextWidth) { // #983, #1254
-                var textPxLength = getTextPxLength();
-                if (((textWidth > wrapper.oldTextWidth) ||
-                    textPxLength > textWidth) && (
+            if (textWidth !== this.oldTextWidth) { // #983, #1254
+                const textPxLength = getTextPxLength(), textWidthNum = textWidth || 0;
+                if (((textWidthNum > this.oldTextWidth) ||
+                    textPxLength > textWidthNum) && (
                 // Only set the width if the text is able to word-wrap,
                 // or text-overflow is ellipsis (#9537)
-                /[ \-]/.test(elem.textContent || elem.innerText) ||
-                    elem.style.textOverflow === 'ellipsis')) {
-                    css(elem, {
-                        width: (textPxLength > textWidth) || rotation ?
+                /[ \-]/.test(element.textContent || element.innerText) ||
+                    element.style.textOverflow === 'ellipsis')) {
+                    css(element, {
+                        width: (textPxLength > textWidthNum) || rotation ?
                             textWidth + 'px' :
                             'auto',
                         display: 'block',
                         whiteSpace: whiteSpace || 'normal' // #3331
                     });
-                    wrapper.oldTextWidth = textWidth;
+                    this.oldTextWidth = textWidth;
                     hasBoxWidthChanged = true; // #8159
                 }
             }
-            wrapper.hasBoxWidthChanged = hasBoxWidthChanged; // #8159
+            this.hasBoxWidthChanged = hasBoxWidthChanged; // #8159
             // Do the calculations and DOM access only if properties changed
-            if (currentTextTransform !== wrapper.cTT) {
-                baseline = renderer.fontMetrics(elem.style.fontSize, elem).b;
+            if (currentTextTransform !== this.cTT) {
+                baseline = renderer.fontMetrics(element).b;
                 // Renderer specific handling of span rotation, but only if we
                 // have something to update.
                 if (defined(rotation) &&
-                    ((rotation !== (wrapper.oldRotation || 0)) ||
-                        (align !== wrapper.oldAlign))) {
-                    wrapper.setSpanRotation(rotation, alignCorrection, baseline);
+                    ((rotation !== (this.oldRotation || 0)) ||
+                        (textAlign !== this.oldAlign))) {
+                    this.setSpanRotation(rotation, alignCorrection, baseline);
                 }
-                wrapper.getSpanCorrection(
+                this.getSpanCorrection(
                 // Avoid elem.offsetWidth if we can, it affects rendering
                 // time heavily (#7656)
-                ((!defined(rotation) && wrapper.textPxLength) || // #7920
-                    elem.offsetWidth), baseline, alignCorrection, rotation, align);
+                ((!defined(rotation) && this.textPxLength) || // #7920
+                    element.offsetWidth), baseline, alignCorrection);
             }
-            // apply position with correction
-            css(elem, {
-                left: (x + (wrapper.xCorr || 0)) + 'px',
-                top: (y + (wrapper.yCorr || 0)) + 'px'
+            // Apply position with correction
+            css(element, {
+                left: (x + (this.xCorr || 0)) + 'px',
+                top: (y + (this.yCorr || 0)) + 'px'
             });
-            // record current text transform
-            wrapper.cTT = currentTextTransform;
-            wrapper.oldRotation = rotation;
-            wrapper.oldAlign = align;
+            // Record current text transform
+            this.cTT = currentTextTransform;
+            this.oldRotation = rotation;
+            this.oldAlign = textAlign;
         }
-    };
+    }
     /**
      * Set the rotation of an individual HTML span.
      * @private
      */
-    HTMLElement.prototype.setSpanRotation = function (rotation, alignCorrection, baseline) {
-        var getTransformKey = function () { return (isMS &&
-            !/Edge/.test(win.navigator.userAgent) ?
-            '-ms-transform' :
-            isWebKit ?
-                '-webkit-transform' :
-                isFirefox ?
-                    'MozTransform' :
-                    win.opera ?
-                        '-o-transform' :
-                        void 0); };
-        var rotationStyle = {}, cssTransformKey = getTransformKey();
-        if (cssTransformKey) {
-            rotationStyle[cssTransformKey] = rotationStyle.transform =
-                'rotate(' + rotation + 'deg)';
-            rotationStyle[cssTransformKey + (isFirefox ? 'Origin' : '-origin')] = rotationStyle.transformOrigin =
-                (alignCorrection * 100) + '% ' + baseline + 'px';
-            css(this.element, rotationStyle);
-        }
-    };
-    /* *
-     *
-     *  Static Properties
-     *
-     * */
-    HTMLElement.composedClasses = [];
-    return HTMLElement;
-}(SVGElement));
+    setSpanRotation(rotation, alignCorrection, baseline) {
+        // CSS transform and transform-origin both supported without prefix
+        // since Firefox 16 (2012), IE 10 (2012), Chrome 36 (2014), Safari 9
+        // (2015).;
+        css(this.element, {
+            transform: `rotate(${rotation}deg)`,
+            transformOrigin: `${alignCorrection * 100}% ${baseline}px`
+        });
+    }
+}
 /* *
  *
  *  Default Export

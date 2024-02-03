@@ -1,7 +1,7 @@
 /**
- * @license Highcharts JS v10.0.0 (2022-03-07)
+ * @license Highcharts JS v11.3.0 (2024-01-10)
  *
- * (c) 2009-2021 Torstein Honsi
+ * (c) 2009-2024 Torstein Honsi
  *
  * License: www.highcharts.com/license
  */
@@ -26,19 +26,17 @@
             obj[path] = fn.apply(null, args);
 
             if (typeof CustomEvent === 'function') {
-                window.dispatchEvent(
-                    new CustomEvent(
-                        'HighchartsModuleLoaded',
-                        { detail: { path: path, module: obj[path] }
-                    })
-                );
+                window.dispatchEvent(new CustomEvent(
+                    'HighchartsModuleLoaded',
+                    { detail: { path: path, module: obj[path] } }
+                ));
             }
         }
     }
-    _registerModule(_modules, 'Extensions/Themes/BrandDark.js', [_modules['Core/DefaultOptions.js'], _modules['Core/Utilities.js']], function (D, U) {
+    _registerModule(_modules, 'Extensions/Themes/BrandDark.js', [_modules['Core/Defaults.js'], _modules['Core/Utilities.js']], function (D, U) {
         /* *
          *
-         *   (c) 2010-2021 Highsoft AS
+         *   (c) 2010-2024 Highsoft AS
          *
          *  Author: Nancy Dillon
          *
@@ -49,8 +47,8 @@
          *  !!!!!!! SOURCE GETS TRANSPILED BY TYPESCRIPT. EDIT TS FILE ONLY. !!!!!!!
          *
          * */
-        var setOptions = D.setOptions;
-        var createElement = U.createElement;
+        const { setOptions } = D;
+        const { createElement } = U;
         /* *
          *
          *  Theme
@@ -117,11 +115,6 @@
                     itemHoverStyle: {
                         fontWeight: '700',
                         color: '#fff'
-                    }
-                },
-                labels: {
-                    style: {
-                        color: '#707073'
                     }
                 },
                 plotOptions: {
@@ -233,8 +226,7 @@
                                     }
                                 }
                             }
-                        },
-                        verticalAlign: 'bottom'
+                        }
                     }
                 },
                 // scroll charts
@@ -311,7 +303,7 @@
             function apply() {
                 // Load the fonts
                 createElement('link', {
-                    href: 'https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:200,300,400,600,700',
+                    href: 'https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@200;300;400;600;700',
                     rel: 'stylesheet',
                     type: 'text/css'
                 }, null, document.getElementsByTagName('head')[0]);

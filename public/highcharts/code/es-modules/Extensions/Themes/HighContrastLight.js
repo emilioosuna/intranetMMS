@@ -1,6 +1,6 @@
 /* *
  *
- *  (c) 2010-2021 Highsoft AS
+ *  (c) 2010-2024 Highsoft AS
  *
  *  Author: Øystein Moseng
  *
@@ -14,8 +14,8 @@
  *
  * */
 'use strict';
-import D from '../../Core/DefaultOptions.js';
-var setOptions = D.setOptions;
+import D from '../../Core/Defaults.js';
+const { setOptions } = D;
 /* *
  *
  *  Theme
@@ -30,17 +30,22 @@ var HighContrastLightTheme;
      * */
     HighContrastLightTheme.options = {
         colors: [
-            '#4372da',
+            '#265FB5',
             '#222',
-            '#0b7383',
-            '#6B26F0',
-            '#D42D1A',
-            '#3D239E',
-            '#7e7932',
-            '#b06320',
-            '#244a76',
-            '#76767A'
+            '#698F01',
+            '#F4693E',
+            '#4C0684',
+            '#0FA388',
+            '#B7104A',
+            '#AF9023',
+            '#1A704C',
+            '#B02FDD'
         ],
+        credits: {
+            style: {
+                color: '#767676'
+            }
+        },
         navigator: {
             series: {
                 color: '#5f98cf',

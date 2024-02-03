@@ -1,7 +1,7 @@
 /**
- * @license Highcharts JS v10.0.0 (2022-03-07)
+ * @license Highcharts JS v11.3.0 (2024-01-10)
  *
- * (c) 2009-2021 Highsoft AS
+ * (c) 2009-2024 Highsoft AS
  *
  * License: www.highcharts.com/license
  */
@@ -26,19 +26,17 @@
             obj[path] = fn.apply(null, args);
 
             if (typeof CustomEvent === 'function') {
-                window.dispatchEvent(
-                    new CustomEvent(
-                        'HighchartsModuleLoaded',
-                        { detail: { path: path, module: obj[path] }
-                    })
-                );
+                window.dispatchEvent(new CustomEvent(
+                    'HighchartsModuleLoaded',
+                    { detail: { path: path, module: obj[path] } }
+                ));
             }
         }
     }
-    _registerModule(_modules, 'Extensions/Themes/HighContrastLight.js', [_modules['Core/DefaultOptions.js']], function (D) {
+    _registerModule(_modules, 'Extensions/Themes/HighContrastLight.js', [_modules['Core/Defaults.js']], function (D) {
         /* *
          *
-         *  (c) 2010-2021 Highsoft AS
+         *  (c) 2010-2024 Highsoft AS
          *
          *  Author: Øystein Moseng
          *
@@ -51,7 +49,7 @@
          *  !!!!!!! SOURCE GETS TRANSPILED BY TYPESCRIPT. EDIT TS FILE ONLY. !!!!!!!
          *
          * */
-        var setOptions = D.setOptions;
+        const { setOptions } = D;
         /* *
          *
          *  Theme
@@ -66,17 +64,22 @@
              * */
             HighContrastLightTheme.options = {
                 colors: [
-                    '#4372da',
+                    '#265FB5',
                     '#222',
-                    '#0b7383',
-                    '#6B26F0',
-                    '#D42D1A',
-                    '#3D239E',
-                    '#7e7932',
-                    '#b06320',
-                    '#244a76',
-                    '#76767A'
+                    '#698F01',
+                    '#F4693E',
+                    '#4C0684',
+                    '#0FA388',
+                    '#B7104A',
+                    '#AF9023',
+                    '#1A704C',
+                    '#B02FDD'
                 ],
+                credits: {
+                    style: {
+                        color: '#767676'
+                    }
+                },
                 navigator: {
                     series: {
                         color: '#5f98cf',

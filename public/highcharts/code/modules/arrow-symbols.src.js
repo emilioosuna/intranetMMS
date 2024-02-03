@@ -1,9 +1,9 @@
 /**
- * @license Highcharts JS v10.0.0 (2022-03-07)
+ * @license Highcharts JS v11.3.0 (2024-01-10)
  *
  * Arrow Symbols
  *
- * (c) 2017-2021 Lars A. V. Cabrera
+ * (c) 2017-2024 Lars A. V. Cabrera
  *
  * License: www.highcharts.com/license
  */
@@ -28,16 +28,14 @@
             obj[path] = fn.apply(null, args);
 
             if (typeof CustomEvent === 'function') {
-                window.dispatchEvent(
-                    new CustomEvent(
-                        'HighchartsModuleLoaded',
-                        { detail: { path: path, module: obj[path] }
-                    })
-                );
+                window.dispatchEvent(new CustomEvent(
+                    'HighchartsModuleLoaded',
+                    { detail: { path: path, module: obj[path] } }
+                ));
             }
         }
     }
-    _registerModule(_modules, 'Extensions/ArrowSymbols.js', [_modules['Core/Renderer/SVG/SVGRenderer.js']], function (SVGRenderer) {
+    _registerModule(_modules, 'Extensions/ArrowSymbols.js', [_modules['Core/Globals.js'], _modules['Core/Utilities.js']], function (H, U) {
         /* *
          *
          *  (c) 2017 Highsoft AS
@@ -48,7 +46,8 @@
          *  !!!!!!! SOURCE GETS TRANSPILED BY TYPESCRIPT. EDIT TS FILE ONLY. !!!!!!!
          *
          * */
-        var symbols = SVGRenderer.prototype.symbols;
+        const { composed } = H;
+        const { pushUnique } = U;
         /* *
          *
          *  Functions
@@ -124,6 +123,20 @@
             return arrow(x, y, w / 2, h);
         }
         /**
+         * @private
+         */
+        function compose(SVGRendererClass) {
+            if (pushUnique(composed, compose)) {
+                const symbols = SVGRendererClass.prototype.symbols;
+                symbols.arrow = arrow;
+                symbols['arrow-filled'] = triangleLeft;
+                symbols['arrow-filled-half'] = triangleLeftHalf;
+                symbols['arrow-half'] = arrowHalf;
+                symbols['triangle-left'] = triangleLeft;
+                symbols['triangle-left-half'] = triangleLeftHalf;
+            }
+        }
+        /**
          * Creates a left-oriented triangle.
          * ```
          *             o
@@ -190,22 +203,21 @@
         function triangleLeftHalf(x, y, w, h) {
             return triangleLeft(x, y, w / 2, h);
         }
-        symbols.arrow = arrow;
-        symbols['arrow-filled'] = triangleLeft;
-        symbols['arrow-filled-half'] = triangleLeftHalf;
-        symbols['arrow-half'] = arrowHalf;
-        symbols['triangle-left'] = triangleLeft;
-        symbols['triangle-left-half'] = triangleLeftHalf;
         /* *
          *
          *  Default Export
          *
          * */
+        const ArrowSymbols = {
+            compose
+        };
 
-        return symbols;
+        return ArrowSymbols;
     });
-    _registerModule(_modules, 'masters/modules/arrow-symbols.src.js', [], function () {
+    _registerModule(_modules, 'masters/modules/arrow-symbols.src.js', [_modules['Core/Globals.js'], _modules['Extensions/ArrowSymbols.js']], function (Highcharts, ArrowSymbols) {
 
+        const G = Highcharts;
+        ArrowSymbols.compose(G.SVGRenderer);
 
     });
 }));

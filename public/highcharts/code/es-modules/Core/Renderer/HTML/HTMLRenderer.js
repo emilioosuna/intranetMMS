@@ -1,6 +1,6 @@
 /* *
  *
- *  (c) 2010-2021 Torstein Honsi
+ *  (c) 2010-2024 Torstein Honsi
  *
  *  License: www.highcharts.com/license
  *
@@ -8,58 +8,41 @@
  *
  * */
 'use strict';
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 import AST from './AST.js';
+import H from '../../Globals.js';
+const { composed } = H;
 import SVGElement from '../SVG/SVGElement.js';
 import SVGRenderer from '../SVG/SVGRenderer.js';
 import U from '../../Utilities.js';
-var attr = U.attr, createElement = U.createElement, extend = U.extend, pick = U.pick;
+const { attr, createElement, extend, pick, pushUnique } = U;
 /* *
  *
  *  Class
  *
  * */
-/* eslint-disable valid-jsdoc */
 // Extend SvgRenderer for useHTML option.
-var HTMLRenderer = /** @class */ (function (_super) {
-    __extends(HTMLRenderer, _super);
-    function HTMLRenderer() {
-        return _super !== null && _super.apply(this, arguments) || this;
-    }
+class HTMLRenderer extends SVGRenderer {
     /* *
      *
      *  Static Functions
      *
      * */
     /** @private */
-    HTMLRenderer.compose = function (SVGRendererClass) {
-        if (HTMLRenderer.composedClasses.indexOf(SVGRendererClass) === -1) {
-            HTMLRenderer.composedClasses.push(SVGRendererClass);
-            var htmlRendererProto = HTMLRenderer.prototype, svgRendererProto = SVGRendererClass.prototype;
+    static compose(SVGRendererClass) {
+        if (pushUnique(composed, this.compose)) {
+            const htmlRendererProto = HTMLRenderer.prototype, svgRendererProto = SVGRendererClass.prototype;
             svgRendererProto.html = htmlRendererProto.html;
         }
         return SVGRendererClass;
-    };
+    }
     /* *
      *
      *  Functions
      *
      * */
     /**
-     * Create HTML text node. This is used by the VML renderer as well as the
-     * SVG renderer through the useHTML option.
+     * Create HTML text node. This is used by the SVG renderer through the
+     * useHTML option.
      *
      * @private
      * @function Highcharts.SVGRenderer#html
@@ -76,13 +59,13 @@ var HTMLRenderer = /** @class */ (function (_super) {
      * @return {Highcharts.HTMLDOMElement}
      * HTML element.
      */
-    HTMLRenderer.prototype.html = function (str, x, y) {
-        var wrapper = this.createElement('span'), element = wrapper.element, renderer = wrapper.renderer, isSVG = renderer.isSVG, addSetters = function (gWrapper, style) {
+    html(str, x, y) {
+        const wrapper = this.createElement('span'), element = wrapper.element, renderer = wrapper.renderer, addSetters = function (gWrapper, style) {
             // These properties are set as attributes on the SVG group, and
             // as identical CSS properties on the div. (#3542)
             ['opacity', 'visibility'].forEach(function (prop) {
                 gWrapper[prop + 'Setter'] = function (value, key, elem) {
-                    var styleObject = gWrapper.div ?
+                    const styleObject = gWrapper.div ?
                         gWrapper.div.style :
                         style;
                     SVGElement.prototype[prop + 'Setter']
@@ -104,10 +87,7 @@ var HTMLRenderer = /** @class */ (function (_super) {
                 wrapper.doTransform = true;
             }
         };
-        // Add setters for the element itself (#4938)
-        if (isSVG) { // #4938, only for HTML within SVG
-            addSetters(wrapper, wrapper.element.style);
-        }
+        addSetters(wrapper, wrapper.element.style);
         // Various setters which rely on update transform
         wrapper.xSetter =
             wrapper.ySetter =
@@ -115,7 +95,7 @@ var HTMLRenderer = /** @class */ (function (_super) {
                     wrapper.rotationSetter =
                         function (value, key) {
                             if (key === 'align') {
-                                // Do not overwrite the SVGElement.align method. Same as VML.
+                                // Do not overwrite the SVGElement.align method.
                                 wrapper.alignValue = wrapper.textAlign = value;
                             }
                             else {
@@ -152,118 +132,125 @@ var HTMLRenderer = /** @class */ (function (_super) {
         element.style.whiteSpace = 'nowrap';
         // Use the HTML specific .css method
         wrapper.css = wrapper.htmlCss;
-        // This is specific for HTML within SVG
-        if (isSVG) {
-            wrapper.add = function (svgGroupWrapper) {
-                var container = renderer.box.parentNode, parents = [];
-                var htmlGroup, parentGroup;
-                this.parentGroup = svgGroupWrapper;
-                // Create a mock group to hold the HTML elements
-                if (svgGroupWrapper) {
-                    htmlGroup = svgGroupWrapper.div;
-                    if (!htmlGroup) {
-                        // Read the parent chain into an array and read from top
-                        // down
-                        parentGroup = svgGroupWrapper;
-                        while (parentGroup) {
-                            parents.push(parentGroup);
-                            // Move up to the next parent group
-                            parentGroup = parentGroup.parentGroup;
-                        }
-                        // Ensure dynamically updating position when any parent
-                        // is translated
-                        parents.reverse().forEach(function (parentGroup) {
-                            var cls = attr(parentGroup.element, 'class');
-                            /**
-                             * Common translate setter for X and Y on the HTML
-                             * group. Reverted the fix for #6957 du to
-                             * positioning problems and offline export (#7254,
-                             * #7280, #7529)
-                             * @private
-                             * @param {*} value
-                             * @param {string} key
-                                                     */
-                            function translateSetter(value, key) {
-                                parentGroup[key] = value;
-                                if (key === 'translateX') {
-                                    htmlGroupStyle.left = value + 'px';
-                                }
-                                else {
-                                    htmlGroupStyle.top = value + 'px';
-                                }
-                                parentGroup.doTransform = true;
-                            }
-                            // Create a HTML div and append it to the parent div
-                            // to emulate the SVG group structure
-                            var parentGroupStyles = parentGroup.styles || {};
-                            htmlGroup =
-                                parentGroup.div =
-                                    parentGroup.div || createElement('div', cls ? { className: cls } : void 0, {
-                                        position: 'absolute',
-                                        left: (parentGroup.translateX || 0) + 'px',
-                                        top: (parentGroup.translateY || 0) + 'px',
-                                        display: parentGroup.display,
-                                        opacity: parentGroup.opacity,
-                                        cursor: parentGroupStyles.cursor,
-                                        pointerEvents: (
-                                        // #5595
-                                        parentGroupStyles.pointerEvents),
-                                        visibility: parentGroup.visibility
-                                        // the top group is appended to container
-                                    }, htmlGroup || container);
-                            // Shortcut
-                            var htmlGroupStyle = htmlGroup.style;
-                            // Set listeners to update the HTML div's position
-                            // whenever the SVG group position is changed.
-                            extend(parentGroup, {
-                                // (#7287) Pass htmlGroup to use
-                                // the related group
-                                classSetter: (function (htmlGroup) {
-                                    return function (value) {
-                                        this.element.setAttribute('class', value);
-                                        htmlGroup.className = value;
-                                    };
-                                }(htmlGroup)),
-                                on: function () {
-                                    if (parents[0].div) { // #6418
-                                        wrapper.on.apply({
-                                            element: parents[0].div,
-                                            onEvents: parentGroup.onEvents
-                                        }, arguments);
-                                    }
-                                    return parentGroup;
-                                },
-                                translateXSetter: translateSetter,
-                                translateYSetter: translateSetter
-                            });
-                            if (!parentGroup.addedSetters) {
-                                addSetters(parentGroup);
-                            }
-                        });
+        wrapper.add = function (svgGroupWrapper) {
+            const container = renderer.box.parentNode, parents = [];
+            let htmlGroup, parentGroup;
+            this.parentGroup = svgGroupWrapper;
+            // Create a mock group to hold the HTML elements
+            if (svgGroupWrapper) {
+                htmlGroup = svgGroupWrapper.div;
+                if (!htmlGroup) {
+                    // Read the parent chain into an array and read from top
+                    // down
+                    parentGroup = svgGroupWrapper;
+                    while (parentGroup) {
+                        parents.push(parentGroup);
+                        // Move up to the next parent group
+                        parentGroup = parentGroup.parentGroup;
                     }
+                    // Ensure dynamically updating position when any parent
+                    // is translated
+                    parents.reverse().forEach(function (parentGroup) {
+                        const cls = attr(parentGroup.element, 'class'), parentProtoCss = parentGroup.css;
+                        /**
+                         * Common translate setter for X and Y on the HTML
+                         * group. Reverted the fix for #6957 du to
+                         * positioning problems and offline export (#7254,
+                         * #7280, #7529)
+                         * @private
+                         * @param {*} value
+                         * @param {string} key
+                                                 */
+                        function translateSetter(value, key) {
+                            parentGroup[key] = value;
+                            if (key === 'translateX') {
+                                htmlGroupStyle.left = value + 'px';
+                            }
+                            else {
+                                htmlGroupStyle.top = value + 'px';
+                            }
+                            parentGroup.doTransform = true;
+                        }
+                        // Create a HTML div and append it to the parent div
+                        // to emulate the SVG group structure
+                        const parentGroupStyles = parentGroup.styles || {};
+                        htmlGroup =
+                            parentGroup.div =
+                                parentGroup.div || createElement('div', cls ? { className: cls } : void 0, {
+                                    position: 'absolute',
+                                    left: (parentGroup.translateX || 0) + 'px',
+                                    top: (parentGroup.translateY || 0) + 'px',
+                                    display: parentGroup.display,
+                                    opacity: parentGroup.opacity,
+                                    visibility: parentGroup.visibility
+                                    // the top group is appended to container
+                                }, htmlGroup || container);
+                        // Shortcut
+                        const htmlGroupStyle = htmlGroup.style;
+                        // Set listeners to update the HTML div's position
+                        // whenever the SVG group position is changed.
+                        extend(parentGroup, {
+                            // (#7287) Pass htmlGroup to use
+                            // the related group
+                            classSetter: (function (htmlGroup) {
+                                return function (value) {
+                                    this.element.setAttribute('class', value);
+                                    htmlGroup.className = value;
+                                };
+                            }(htmlGroup)),
+                            // Extend the parent group's css function by
+                            // updating the shadow div counterpart with the same
+                            // style.
+                            css: function (styles) {
+                                // Call the base css method. The `parentGroup`
+                                // can be either an SVGElement or an SVGLabel,
+                                // in which the css method is extended (#19200).
+                                parentProtoCss.call(parentGroup, styles);
+                                [
+                                    // #6794
+                                    'cursor',
+                                    // #5595, #18821
+                                    'pointerEvents'
+                                ].forEach((prop) => {
+                                    if (styles[prop]) {
+                                        htmlGroupStyle[prop] = styles[prop];
+                                    }
+                                });
+                                return parentGroup;
+                            },
+                            on: function () {
+                                if (parents[0].div) { // #6418
+                                    wrapper.on.apply({
+                                        element: parents[0].div,
+                                        onEvents: parentGroup.onEvents
+                                    }, arguments);
+                                }
+                                return parentGroup;
+                            },
+                            translateXSetter: translateSetter,
+                            translateYSetter: translateSetter
+                        });
+                        if (!parentGroup.addedSetters) {
+                            addSetters(parentGroup);
+                        }
+                        // Apply pre-existing style
+                        parentGroup.css(parentGroupStyles);
+                    });
                 }
-                else {
-                    htmlGroup = container;
-                }
-                htmlGroup.appendChild(element);
-                // Shared with VML:
-                wrapper.added = true;
-                if (wrapper.alignOnAdd) {
-                    wrapper.htmlUpdateTransform();
-                }
-                return wrapper;
-            };
-        }
+            }
+            else {
+                htmlGroup = container;
+            }
+            htmlGroup.appendChild(element);
+            wrapper.added = true;
+            if (wrapper.alignOnAdd) {
+                wrapper.htmlUpdateTransform();
+            }
+            return wrapper;
+        };
         return wrapper;
-    };
-    /* *
-     *
-     *  Static Properties
-     *
-     * */
-    HTMLRenderer.composedClasses = [];
-    return HTMLRenderer;
-}(SVGRenderer));
+    }
+}
 /* *
  *
  *  Default Export

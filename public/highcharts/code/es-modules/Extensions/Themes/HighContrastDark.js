@@ -1,6 +1,6 @@
 /* *
  *
- *  (c) 2010-2021 Highsoft AS
+ *  (c) 2010-2024 Highsoft AS
  *
  *  Author: Øystein Moseng
  *
@@ -14,8 +14,8 @@
  *
  * */
 'use strict';
-import D from '../../Core/DefaultOptions.js';
-var setOptions = D.setOptions;
+import D from '../../Core/Defaults.js';
+const { setOptions } = D;
 /* *
  *
  *  Theme
@@ -28,19 +28,19 @@ var HighContrastDarkTheme;
      *  Constants
      *
      * */
-    var textBright = '#F0F0F3';
+    const textBright = '#F0F0F3';
     HighContrastDarkTheme.options = {
         colors: [
-            '#6783E7',
-            '#8AC668',
-            '#9630EF',
-            '#F0A079',
-            '#51ACD1',
-            '#CB3F44',
-            '#CD9FE5',
-            '#4DA9A5',
-            '#BBDEE0',
-            '#E3AF3D'
+            '#67B9EE',
+            '#CEEDA5',
+            '#9F6AE1',
+            '#FEA26E',
+            '#6BA48F',
+            '#EA3535',
+            '#8D96B7',
+            '#ECCA15',
+            '#20AA09',
+            '#E0C3E4'
         ],
         chart: {
             backgroundColor: '#1f1f20',
@@ -136,11 +136,6 @@ var HighContrastDarkTheme;
         credits: {
             style: {
                 color: textBright
-            }
-        },
-        labels: {
-            style: {
-                color: '#707073'
             }
         },
         drilldown: {

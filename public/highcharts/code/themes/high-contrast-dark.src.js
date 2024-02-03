@@ -1,7 +1,7 @@
 /**
- * @license Highcharts JS v10.0.0 (2022-03-07)
+ * @license Highcharts JS v11.3.0 (2024-01-10)
  *
- * (c) 2009-2021 Highsoft AS
+ * (c) 2009-2024 Highsoft AS
  *
  * License: www.highcharts.com/license
  */
@@ -26,19 +26,17 @@
             obj[path] = fn.apply(null, args);
 
             if (typeof CustomEvent === 'function') {
-                window.dispatchEvent(
-                    new CustomEvent(
-                        'HighchartsModuleLoaded',
-                        { detail: { path: path, module: obj[path] }
-                    })
-                );
+                window.dispatchEvent(new CustomEvent(
+                    'HighchartsModuleLoaded',
+                    { detail: { path: path, module: obj[path] } }
+                ));
             }
         }
     }
-    _registerModule(_modules, 'Extensions/Themes/HighContrastDark.js', [_modules['Core/DefaultOptions.js']], function (D) {
+    _registerModule(_modules, 'Extensions/Themes/HighContrastDark.js', [_modules['Core/Defaults.js']], function (D) {
         /* *
          *
-         *  (c) 2010-2021 Highsoft AS
+         *  (c) 2010-2024 Highsoft AS
          *
          *  Author: Øystein Moseng
          *
@@ -51,7 +49,7 @@
          *  !!!!!!! SOURCE GETS TRANSPILED BY TYPESCRIPT. EDIT TS FILE ONLY. !!!!!!!
          *
          * */
-        var setOptions = D.setOptions;
+        const { setOptions } = D;
         /* *
          *
          *  Theme
@@ -64,19 +62,19 @@
              *  Constants
              *
              * */
-            var textBright = '#F0F0F3';
+            const textBright = '#F0F0F3';
             HighContrastDarkTheme.options = {
                 colors: [
-                    '#6783E7',
-                    '#8AC668',
-                    '#9630EF',
-                    '#F0A079',
-                    '#51ACD1',
-                    '#CB3F44',
-                    '#CD9FE5',
-                    '#4DA9A5',
-                    '#BBDEE0',
-                    '#E3AF3D'
+                    '#67B9EE',
+                    '#CEEDA5',
+                    '#9F6AE1',
+                    '#FEA26E',
+                    '#6BA48F',
+                    '#EA3535',
+                    '#8D96B7',
+                    '#ECCA15',
+                    '#20AA09',
+                    '#E0C3E4'
                 ],
                 chart: {
                     backgroundColor: '#1f1f20',
@@ -172,11 +170,6 @@
                 credits: {
                     style: {
                         color: textBright
-                    }
-                },
-                labels: {
-                    style: {
-                        color: '#707073'
                     }
                 },
                 drilldown: {

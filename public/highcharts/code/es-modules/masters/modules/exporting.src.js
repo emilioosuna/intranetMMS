@@ -1,20 +1,19 @@
 /**
- * @license Highcharts JS v10.0.0 (2022-03-07)
+ * @license Highcharts JS v11.3.0 (2024-01-10)
  * @module highcharts/modules/exporting
  * @requires highcharts
  *
  * Exporting module
  *
- * (c) 2010-2021 Torstein Honsi
+ * (c) 2010-2024 Torstein Honsi
  *
  * License: www.highcharts.com/license
  */
 'use strict';
 import Highcharts from '../../Core/Globals.js';
-import '../../Extensions/FullScreen.js';
 import Exporting from '../../Extensions/Exporting/Exporting.js';
 import HttpUtilities from '../../Core/HttpUtilities.js';
-var G = Highcharts;
+const G = Highcharts;
 G.HttpUtilities = HttpUtilities;
 G.ajax = HttpUtilities.ajax;
 G.getJSON = HttpUtilities.getJSON;

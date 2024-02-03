@@ -1,9 +1,9 @@
 /**
- * @license Highcharts JS v10.0.0 (2022-03-07)
+ * @license Highcharts JS v11.3.0 (2024-01-10)
  * @module highcharts/modules/dumbbell
  * @requires highcharts
  *
- * (c) 2009-2021 Sebastian Bochan, Rafal Sebestjanski
+ * (c) 2009-2024 Sebastian Bochan, Rafal Sebestjanski
  *
  * License: www.highcharts.com/license
  */

@@ -1,6 +1,6 @@
 /* *
  *
- *  (c) 2010-2021 Torstein Honsi
+ *  (c) 2010-2024 Torstein Honsi
  *
  *  License: www.highcharts.com/license
  *
@@ -10,8 +10,8 @@
  *
  * */
 'use strict';
-import D from '../../Core/DefaultOptions.js';
-var setOptions = D.setOptions;
+import D from '../../Core/Defaults.js';
+const { setOptions } = D;
 /* *
  *
  *  Theme
@@ -81,7 +81,6 @@ var DarkGreenTheme;
                 }
             },
             lineColor: '#A0A0A0',
-            minorTickInterval: null,
             tickColor: '#A0A0A0',
             tickWidth: 1,
             title: {
@@ -143,11 +142,6 @@ var DarkGreenTheme;
         credits: {
             style: {
                 color: '#666'
-            }
-        },
-        labels: {
-            style: {
-                color: '#CCC'
             }
         },
         navigation: {

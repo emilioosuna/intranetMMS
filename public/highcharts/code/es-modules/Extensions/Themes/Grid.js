@@ -1,6 +1,6 @@
 /* *
  *
- *  (c) 2010-2021 Torstein Honsi
+ *  (c) 2010-2024 Torstein Honsi
  *
  *  License: www.highcharts.com/license
  *
@@ -10,8 +10,8 @@
  *
  * */
 'use strict';
-import D from '../../Core/DefaultOptions.js';
-var setOptions = D.setOptions;
+import D from '../../Core/Defaults.js';
+const { setOptions } = D;
 /* *
  *
  *  Theme
@@ -104,11 +104,6 @@ var GridTheme;
             },
             itemHiddenStyle: {
                 color: 'gray'
-            }
-        },
-        labels: {
-            style: {
-                color: '#99b'
             }
         },
         navigation: {

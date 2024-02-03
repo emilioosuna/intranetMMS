@@ -2,7 +2,7 @@
  *
  *  Exporting module
  *
- *  (c) 2010-2021 Torstein Honsi
+ *  (c) 2010-2024 Torstein Honsi
  *
  *  License: www.highcharts.com/license
  *
@@ -13,15 +13,16 @@
 import AST from '../../Core/Renderer/HTML/AST.js';
 import Chart from '../../Core/Chart/Chart.js';
 import ChartNavigationComposition from '../../Core/Chart/ChartNavigationComposition.js';
-import D from '../../Core/DefaultOptions.js';
-var defaultOptions = D.defaultOptions;
+import D from '../../Core/Defaults.js';
+const { defaultOptions, setOptions } = D;
 import ExportingDefaults from './ExportingDefaults.js';
 import ExportingSymbols from './ExportingSymbols.js';
+import Fullscreen from './Fullscreen.js';
 import G from '../../Core/Globals.js';
-var doc = G.doc, win = G.win;
+const { composed, doc, SVG_NS, win } = G;
 import HU from '../../Core/HttpUtilities.js';
 import U from '../../Core/Utilities.js';
-var addEvent = U.addEvent, css = U.css, createElement = U.createElement, discardElement = U.discardElement, extend = U.extend, find = U.find, fireEvent = U.fireEvent, isObject = U.isObject, merge = U.merge, objectEach = U.objectEach, pick = U.pick, removeEvent = U.removeEvent, uniqueKey = U.uniqueKey;
+const { addEvent, css, createElement, discardElement, extend, find, fireEvent, isObject, merge, objectEach, pick, pushUnique, removeEvent, uniqueKey } = U;
 /* *
  *
  *  Composition
@@ -39,21 +40,22 @@ var Exporting;
      *  Constants
      *
      * */
-    var composedClasses = [];
     // These CSS properties are not inlined. Remember camelCase.
-    var inlineBlacklist = [
+    const inlineDenylist = [
         /-/,
         /^(clipPath|cssText|d|height|width)$/,
         /^font$/,
         /[lL]ogical(Width|Height)$/,
+        /^parentRule$/,
+        /^(cssRules|ownerRules)$/,
         /perspective/,
         /TapHighlightColor/,
         /^transition/,
-        /^length$/ // #7700
-        // /^text (border|color|cursor|height|webkitBorder)/
+        /^length$/,
+        /^[0-9]+$/ // #17538
     ];
     // These ones are translated to attributes rather than styles
-    var inlineToAttributes = [
+    const inlineToAttributes = [
         'fill',
         'stroke',
         'strokeLinecap',
@@ -63,8 +65,8 @@ var Exporting;
         'x',
         'y'
     ];
-    Exporting.inlineWhitelist = [];
-    var unstyledElements = [
+    Exporting.inlineAllowlist = [];
+    const unstyledElements = [
         'clipPath',
         'defs',
         'desc'
@@ -74,13 +76,12 @@ var Exporting;
      *  Variables
      *
      * */
-    var printingChart;
+    let printingChart;
     /* *
      *
      *  Functions
      *
      * */
-    /* eslint-disable valid-jsdoc */
     /**
      * Add the export button to the chart, with options.
      *
@@ -90,8 +91,8 @@ var Exporting;
      * @requires modules/exporting
      */
     function addButton(options) {
-        var chart = this, renderer = chart.renderer, btnOptions = merge(chart.options.navigation.buttonOptions, options), onclick = btnOptions.onclick, menuItems = btnOptions.menuItems, symbolSize = btnOptions.symbolSize || 12;
-        var symbol;
+        const chart = this, renderer = chart.renderer, btnOptions = merge(chart.options.navigation.buttonOptions, options), onclick = btnOptions.onclick, menuItems = btnOptions.menuItems, symbolSize = btnOptions.symbolSize || 12;
+        let symbol;
         if (!chart.btnCount) {
             chart.btnCount = 0;
         }
@@ -103,13 +104,12 @@ var Exporting;
         if (btnOptions.enabled === false || !btnOptions.theme) {
             return;
         }
-        var attr = btnOptions.theme, states = attr.states, hover = states && states.hover, select = states && states.select;
-        var callback;
+        const attr = btnOptions.theme;
+        let callback;
         if (!chart.styledMode) {
-            attr.fill = pick(attr.fill, "#ffffff" /* backgroundColor */);
+            attr.fill = pick(attr.fill, "#ffffff" /* Palette.backgroundColor */);
             attr.stroke = pick(attr.stroke, 'none');
         }
-        delete attr.states;
         if (onclick) {
             callback = function (e) {
                 if (e) {
@@ -120,11 +120,11 @@ var Exporting;
         }
         else if (menuItems) {
             callback = function (e) {
-                // consistent with onclick call (#3495)
+                // Consistent with onclick call (#3495)
                 if (e) {
                     e.stopPropagation();
                 }
-                chart.contextMenu(button.menuClassName, menuItems, button.translateX, button.translateY, button.width, button.height, button);
+                chart.contextMenu(button.menuClassName, menuItems, button.translateX || 0, button.translateY || 0, button.width || 0, button.height || 0, button);
                 button.setState(2);
             };
         }
@@ -140,11 +140,11 @@ var Exporting;
         }
         if (!chart.styledMode) {
             attr['stroke-linecap'] = 'round';
-            attr.fill = pick(attr.fill, "#ffffff" /* backgroundColor */);
+            attr.fill = pick(attr.fill, "#ffffff" /* Palette.backgroundColor */);
             attr.stroke = pick(attr.stroke, 'none');
         }
-        var button = renderer
-            .button(btnOptions.text, 0, 0, callback, attr, hover, select)
+        const button = renderer
+            .button(btnOptions.text, 0, 0, callback, attr, void 0, void 0, void 0, void 0, btnOptions.useHTML)
             .addClass(options.className)
             .attr({
             title: pick(chart.options.lang[btnOptions._titleKey || btnOptions.titleKey], '')
@@ -178,7 +178,7 @@ var Exporting;
             width: button.width,
             x: pick(btnOptions.x, chart.buttonOffset) // #1654
         }), true, 'spacingBox');
-        chart.buttonOffset += ((button.width + btnOptions.buttonSpacing) *
+        chart.buttonOffset += (((button.width || 0) + btnOptions.buttonSpacing) *
             (btnOptions.align === 'right' ? -1 : 1));
         chart.exportSVGElements.push(button, symbol);
     }
@@ -195,11 +195,11 @@ var Exporting;
      * @emits Highcharts.Chart#event:afterPrint
      */
     function afterPrint() {
-        var chart = this;
+        const chart = this;
         if (!chart.printReverseInfo) {
             return void 0;
         }
-        var _a = chart.printReverseInfo, childNodes = _a.childNodes, origDisplay = _a.origDisplay, resetParams = _a.resetParams;
+        const { childNodes, origDisplay, resetParams } = chart.printReverseInfo;
         // put the chart back in
         chart.moveContainers(chart.renderTo);
         // restore all body content
@@ -228,7 +228,7 @@ var Exporting;
      * @emits Highcharts.Chart#event:beforePrint
      */
     function beforePrint() {
-        var chart = this, body = doc.body, printMaxWidth = chart.options.exporting.printMaxWidth, printReverseInfo = {
+        const chart = this, body = doc.body, printMaxWidth = chart.options.exporting.printMaxWidth, printReverseInfo = {
             childNodes: body.childNodes,
             origDisplay: [],
             resetParams: void 0
@@ -237,7 +237,7 @@ var Exporting;
         chart.pointer.reset(null, 0);
         fireEvent(chart, 'beforePrint');
         // Handle printMaxWidth
-        var handleMaxWidth = printMaxWidth &&
+        const handleMaxWidth = printMaxWidth &&
             chart.chartWidth > printMaxWidth;
         if (handleMaxWidth) {
             printReverseInfo.resetParams = [
@@ -263,7 +263,7 @@ var Exporting;
      * @private
      */
     function chartCallback(chart) {
-        var composition = chart;
+        const composition = chart;
         composition.renderExporting();
         addEvent(chart, 'redraw', composition.renderExporting);
         // Destroy the export elements at chart destroy
@@ -308,9 +308,9 @@ var Exporting;
      */
     function compose(ChartClass, SVGRendererClass) {
         ExportingSymbols.compose(SVGRendererClass);
-        if (composedClasses.indexOf(ChartClass) === -1) {
-            composedClasses.push(ChartClass);
-            var chartProto = ChartClass.prototype;
+        Fullscreen.compose(ChartClass);
+        if (pushUnique(composed, compose)) {
+            const chartProto = ChartClass.prototype;
             chartProto.afterPrint = afterPrint;
             chartProto.exportChart = exportChart;
             chartProto.inlineStyles = inlineStyles;
@@ -329,7 +329,7 @@ var Exporting;
             chartProto.callbacks.push(chartCallback);
             addEvent(ChartClass, 'init', onChartInit);
             if (G.isSafari) {
-                G.win.matchMedia('print').addListener(function (mqlEvent) {
+                win.matchMedia('print').addListener(function (mqlEvent) {
                     if (!printingChart) {
                         return void 0;
                     }
@@ -341,6 +341,12 @@ var Exporting;
                     }
                 });
             }
+            defaultOptions.exporting = merge(ExportingDefaults.exporting, defaultOptions.exporting);
+            defaultOptions.lang = merge(ExportingDefaults.lang, defaultOptions.lang);
+            // Buttons and menus are collected in a separate config option set
+            // called 'navigation'. This can be extended later to add control
+            // buttons like zoom and pan right click menus.
+            defaultOptions.navigation = merge(ExportingDefaults.navigation, defaultOptions.navigation);
         }
     }
     Exporting.compose = compose;
@@ -364,11 +370,13 @@ var Exporting;
      * @requires modules/exporting
      */
     function contextMenu(className, items, x, y, width, height, button) {
-        var chart = this, navOptions = chart.options.navigation, chartWidth = chart.chartWidth, chartHeight = chart.chartHeight, cacheName = 'cache-' + className, menuPadding = Math.max(width, height); // for mouse leave detection
-        var innerMenu, menu = chart[cacheName];
-        // create the menu only the first time
+        const chart = this, navOptions = chart.options.navigation, chartWidth = chart.chartWidth, chartHeight = chart.chartHeight, cacheName = 'cache-' + className, 
+        // For mouse leave detection
+        menuPadding = Math.max(width, height);
+        let innerMenu, menu = chart[cacheName];
+        // Create the menu only the first time
         if (!menu) {
-            // create a HTML element above the SVG
+            // Create a HTML element above the SVG
             chart.exportContextMenu = chart[cacheName] = menu =
                 createElement('div', {
                     className: className
@@ -376,9 +384,10 @@ var Exporting;
                     position: 'absolute',
                     zIndex: 1000,
                     padding: menuPadding + 'px',
-                    pointerEvents: 'auto'
+                    pointerEvents: 'auto',
+                    ...chart.renderer.style
                 }, chart.fixedDiv || chart.container);
-            innerMenu = createElement('ul', { className: 'highcharts-menu' }, {
+            innerMenu = createElement('ul', { className: 'highcharts-menu' }, chart.styledMode ? {} : {
                 listStyle: 'none',
                 margin: 0,
                 padding: 0
@@ -428,7 +437,7 @@ var Exporting;
                         .menuItemDefinitions[item];
                 }
                 if (isObject(item, true)) {
-                    var element = void 0;
+                    let element;
                     if (item.separator) {
                         element = createElement('hr', void 0, void 0, innerMenu);
                     }
@@ -446,9 +455,8 @@ var Exporting;
                                     e.stopPropagation();
                                 }
                                 menu.hideMenu();
-                                if (item.onclick) {
-                                    item.onclick
-                                        .apply(chart, arguments);
+                                if (typeof item !== 'string' && item.onclick) {
+                                    item.onclick.apply(chart, arguments);
                                 }
                             }
                         }, void 0, innerMenu);
@@ -476,7 +484,7 @@ var Exporting;
             chart.exportMenuWidth = menu.offsetWidth;
             chart.exportMenuHeight = menu.offsetHeight;
         }
-        var menuStyle = { display: 'block' };
+        const menuStyle = { display: 'block' };
         // if outside right, right align it
         if (x + chart.exportMenuWidth > chartWidth) {
             menuStyle.right = (chartWidth - x - width - menuPadding) + 'px';
@@ -507,11 +515,11 @@ var Exporting;
      * @requires modules/exporting
      */
     function destroyExport(e) {
-        var chart = e ? e.target : this, exportSVGElements = chart.exportSVGElements, exportDivElements = chart.exportDivElements, exportEvents = chart.exportEvents;
-        var cacheName;
+        const chart = e ? e.target : this, exportSVGElements = chart.exportSVGElements, exportDivElements = chart.exportDivElements, exportEvents = chart.exportEvents;
+        let cacheName;
         // Destroy the extra buttons added
         if (exportSVGElements) {
-            exportSVGElements.forEach(function (elem, i) {
+            exportSVGElements.forEach((elem, i) => {
                 // Destroy and null the svg elements
                 if (elem) { // #1822
                     elem.onclick = elem.ontouchstart = null;
@@ -583,7 +591,7 @@ var Exporting;
      * @requires modules/exporting
      */
     function exportChart(exportingOptions, chartOptions) {
-        var svg = this.getSVGForExport(exportingOptions, chartOptions);
+        const svg = this.getSVGForExport(exportingOptions, chartOptions);
         // merge the options
         exportingOptions = merge(this.options.exporting, exportingOptions);
         // do the post
@@ -592,11 +600,10 @@ var Exporting;
                 exportingOptions.filename.replace(/\//g, '-') :
                 this.getFilename(),
             type: exportingOptions.type,
-            // IE8 fails to post undefined correctly, so use 0
-            width: exportingOptions.width || 0,
+            width: exportingOptions.width,
             scale: exportingOptions.scale,
             svg: svg
-        }, exportingOptions.formAttributes);
+        }, exportingOptions.fetchOptions);
     }
     /**
      * Return the unfiltered innerHTML of the chart container. Used as hook for
@@ -628,8 +635,8 @@ var Exporting;
      * @requires modules/exporting
      */
     function getFilename() {
-        var s = this.userOptions.title && this.userOptions.title.text;
-        var filename = this.options.exporting.filename;
+        const s = this.userOptions.title && this.userOptions.title.text;
+        let filename = this.options.exporting.filename;
         if (filename) {
             return filename.replace(/\//g, '-');
         }
@@ -671,8 +678,8 @@ var Exporting;
      * @requires modules/exporting
      */
     function getSVG(chartOptions) {
-        var chart = this;
-        var svg, seriesOptions, 
+        const chart = this;
+        let svg, seriesOptions, 
         // Copy the options and add extra options
         options = merge(chart.options, chartOptions);
         // Use userOptions to make the options chain in series right (#3881)
@@ -681,14 +688,14 @@ var Exporting;
         // merged over legacy global time options
         options.time = merge(chart.userOptions.time, chartOptions && chartOptions.time);
         // create a sandbox where a new chart will be generated
-        var sandbox = createElement('div', null, {
+        const sandbox = createElement('div', null, {
             position: 'absolute',
             top: '-9999em',
             width: chart.chartWidth + 'px',
             height: chart.chartHeight + 'px'
         }, doc.body);
         // get the source size
-        var cssWidth = chart.renderTo.style.width, cssHeight = chart.renderTo.style.height, sourceWidth = options.exporting.sourceWidth ||
+        const cssWidth = chart.renderTo.style.width, cssHeight = chart.renderTo.style.height, sourceWidth = options.exporting.sourceWidth ||
             options.chart.width ||
             (/px$/.test(cssWidth) && parseInt(cssWidth, 10)) ||
             (options.isGantt ? 800 : 600), sourceHeight = options.exporting.sourceHeight ||
@@ -720,7 +727,7 @@ var Exporting;
                 options.series.push(seriesOptions);
             }
         });
-        var colls = {};
+        const colls = {};
         chart.axes.forEach(function (axis) {
             // Assign an internal key to ensure a one-to-one mapping (#5924)
             if (!axis.userOptions.internalKey) { // #6444
@@ -736,12 +743,16 @@ var Exporting;
                 }));
             }
         });
+        // Make sure the `colorAxis` object of the `defaultOptions` isn't used
+        // in the chart copy's user options, because a color axis should only be
+        // added when the user actually applies it.
+        options.colorAxis = chart.userOptions.colorAxis;
         // Generate the chart copy
-        var chartCopy = new chart.constructor(options, chart.callback);
+        const chartCopy = new chart.constructor(options, chart.callback);
         // Axis options and series options  (#2022, #3900, #5982)
         if (chartOptions) {
             ['xAxis', 'yAxis', 'series'].forEach(function (coll) {
-                var collOptions = {};
+                const collOptions = {};
                 if (chartOptions[coll]) {
                     collOptions[coll] = chartOptions[coll];
                     chartCopy.update(collOptions);
@@ -750,7 +761,7 @@ var Exporting;
         }
         // Reflect axis extremes in the export (#5924)
         chart.axes.forEach(function (axis) {
-            var axisCopy = find(chartCopy.axes, function (copy) {
+            const axisCopy = find(chartCopy.axes, function (copy) {
                 return copy.options.internalKey ===
                     axis.userOptions.internalKey;
             }), extremes = axis.getExtremes(), userMin = extremes.userMin, userMax = extremes.userMax;
@@ -776,7 +787,7 @@ var Exporting;
      * @function Highcharts.Chart#getSVGForExport
      */
     function getSVGForExport(options, chartOptions) {
-        var chartExportingOptions = this.options.exporting;
+        const chartExportingOptions = this.options.exporting;
         return this.getSVG(merge({ chart: { borderRadius: 0 } }, chartExportingOptions.chartOptions, chartOptions, {
             exporting: {
                 sourceWidth: ((options && options.sourceWidth) ||
@@ -813,22 +824,22 @@ var Exporting;
      * @requires modules/exporting
      */
     function inlineStyles() {
-        var blacklist = inlineBlacklist, whitelist = Exporting.inlineWhitelist, // For IE
+        const denylist = inlineDenylist, allowlist = Exporting.inlineAllowlist, // For IE
         defaultStyles = {};
-        var dummySVG;
+        let dummySVG;
         // Create an iframe where we read default styles without pollution from
         // this body
-        var iframe = doc.createElement('iframe');
+        const iframe = doc.createElement('iframe');
         css(iframe, {
             width: '1px',
             height: '1px',
             visibility: 'hidden'
         });
         doc.body.appendChild(iframe);
-        var iframeDoc = iframe.contentWindow.document;
-        iframeDoc.open();
-        iframeDoc.write('<svg xmlns="http://www.w3.org/2000/svg"></svg>');
-        iframeDoc.close();
+        const iframeDoc = (iframe.contentWindow && iframe.contentWindow.document);
+        if (iframeDoc) {
+            iframeDoc.body.appendChild(iframeDoc.createElementNS(SVG_NS, 'svg'));
+        }
         /**
          * Call this on all elements and recurse to children
          * @private
@@ -836,9 +847,10 @@ var Exporting;
          *        Element child
              */
         function recurse(node) {
-            var styles, parentStyles, cssText = '', dummy, styleAttr, blacklisted, whitelisted, i;
+            const filteredStyles = {};
+            let styles, parentStyles, dummy, denylisted, allowlisted, i;
             /**
-             * Check computed styles and whether they are in the white/blacklist
+             * Check computed styles and whether they are in the allow/denylist
              * for styles or atttributes.
              * @private
              * @param {string} val
@@ -847,27 +859,27 @@ var Exporting;
              *        Style property name
                      */
             function filterStyles(val, prop) {
-                // Check against whitelist & blacklist
-                blacklisted = whitelisted = false;
-                if (whitelist.length) {
-                    // Styled mode in IE has a whitelist instead.
-                    // Exclude all props not in this list.
-                    i = whitelist.length;
-                    while (i-- && !whitelisted) {
-                        whitelisted = whitelist[i].test(prop);
+                // Check against allowlist & denylist
+                denylisted = allowlisted = false;
+                if (allowlist.length) {
+                    // Styled mode in IE has a allowlist instead. Exclude all
+                    // props not in this list.
+                    i = allowlist.length;
+                    while (i-- && !allowlisted) {
+                        allowlisted = allowlist[i].test(prop);
                     }
-                    blacklisted = !whitelisted;
+                    denylisted = !allowlisted;
                 }
                 // Explicitly remove empty transforms
                 if (prop === 'transform' && val === 'none') {
-                    blacklisted = true;
+                    denylisted = true;
                 }
-                i = blacklist.length;
-                while (i-- && !blacklisted) {
-                    blacklisted = (blacklist[i].test(prop) ||
+                i = denylist.length;
+                while (i-- && !denylisted) {
+                    denylisted = (denylist[i].test(prop) ||
                         typeof val === 'function');
                 }
-                if (!blacklisted) {
+                if (!denylisted) {
                     // If parent node has the same style, it gets inherited, no
                     // need to inline it. Top-level props should be diffed
                     // against parent (#7687).
@@ -883,12 +895,13 @@ var Exporting;
                             // Styles
                         }
                         else {
-                            cssText += hyphenate(prop) + ':' + val + ';';
+                            filteredStyles[prop] = val;
                         }
                     }
                 }
             }
-            if (node.nodeType === 1 &&
+            if (iframeDoc &&
+                node.nodeType === 1 &&
                 unstyledElements.indexOf(node.nodeName) === -1) {
                 styles = win.getComputedStyle(node, null);
                 parentStyles = node.nodeName === 'svg' ?
@@ -907,8 +920,16 @@ var Exporting;
                     dummySVG = iframeDoc.getElementsByTagName('svg')[0];
                     dummy = iframeDoc.createElementNS(node.namespaceURI, node.nodeName);
                     dummySVG.appendChild(dummy);
-                    // Copy, so we can remove the node
-                    defaultStyles[node.nodeName] = merge(win.getComputedStyle(dummy, null));
+                    // Get the defaults into a standard object (simple merge
+                    // won't do)
+                    const s = win.getComputedStyle(dummy, null), defaults = {};
+                    for (const key in s) {
+                        if (typeof s[key] === 'string' &&
+                            !/^[0-9]+$/.test(key)) {
+                            defaults[key] = s[key];
+                        }
+                    }
+                    defaultStyles[node.nodeName] = defaults;
                     // Remove default fill, otherwise text disappears when
                     // exported
                     if (node.nodeName === 'text') {
@@ -917,7 +938,7 @@ var Exporting;
                     dummySVG.removeChild(dummy);
                 }
                 // Loop through all styles and add them inline if they are ok
-                for (var p in styles) {
+                for (const p in styles) {
                     if (
                     // Some browsers put lots of styles on the prototype...
                     G.isFirefox ||
@@ -929,10 +950,7 @@ var Exporting;
                     }
                 }
                 // Apply styles
-                if (cssText) {
-                    styleAttr = node.getAttribute('style');
-                    node.setAttribute('style', (styleAttr ? styleAttr + ';' : '') + cssText);
-                }
+                css(node, filteredStyles);
                 // Set default stroke width (needed at least for IE)
                 if (node.nodeName === 'svg') {
                     node.setAttribute('stroke-width', '1px');
@@ -947,7 +965,7 @@ var Exporting;
         /**
          * Remove the dummy objects used to get defaults
          * @private
-             */
+         */
         function tearDown() {
             dummySVG.parentNode.removeChild(dummySVG);
             // Remove trash from DOM that stayed after each exporting
@@ -967,7 +985,7 @@ var Exporting;
      *        Move target
      */
     function moveContainers(moveTo) {
-        var chart = this;
+        const chart = this;
         (chart.fixedDiv ? // When scrollablePlotArea is active (#9533)
             [chart.fixedDiv, chart.scrollingContainer] :
             [chart.container]).forEach(function (div) {
@@ -982,7 +1000,7 @@ var Exporting;
      * @private
      */
     function onChartInit() {
-        var chart = this, 
+        const chart = this, 
         /**
          * @private
          * @param {"exporting"|"navigation"} prop
@@ -992,7 +1010,7 @@ var Exporting;
          * @param {boolean} [redraw=true]
          *        Whether to redraw
                  */
-        update = function (prop, options, redraw) {
+        update = (prop, options, redraw) => {
             chart.isDirtyExporting = true;
             merge(true, chart.options[prop], options);
             if (pick(redraw, true)) {
@@ -1004,12 +1022,12 @@ var Exporting;
                 update('exporting', options, redraw);
             }
         };
-        // Register update() method for navigation. Can not be set the same way
+        // Register update() method for navigation. Cannot be set the same way
         // as for exporting, because navigation options are shared with bindings
         // which has separate update() logic.
         ChartNavigationComposition
             .compose(chart).navigation
-            .addUpdate(function (options, redraw) {
+            .addUpdate((options, redraw) => {
             update('navigation', options, redraw);
         });
     }
@@ -1031,7 +1049,7 @@ var Exporting;
      * @requires modules/exporting
      */
     function print() {
-        var chart = this;
+        const chart = this;
         if (chart.isPrinting) { // block the button while in printing mode
             return;
         }
@@ -1041,12 +1059,12 @@ var Exporting;
         }
         // Give the browser time to draw WebGL content, an issue that randomly
         // appears (at least) in Chrome ~67 on the Mac (#8708).
-        setTimeout(function () {
+        setTimeout(() => {
             win.focus(); // #1510
             win.print();
             // allow the browser to prepare before reverting
             if (!G.isSafari) {
-                setTimeout(function () {
+                setTimeout(() => {
                     chart.afterPrint();
                 }, 1000);
             }
@@ -1059,7 +1077,7 @@ var Exporting;
      * @requires modules/exporting
      */
     function renderExporting() {
-        var chart = this, exportingOptions = chart.options.exporting, buttons = exportingOptions.buttons, isDirty = chart.isDirtyExporting || !chart.exportSVGElements;
+        const chart = this, exportingOptions = chart.options.exporting, buttons = exportingOptions.buttons, isDirty = chart.isDirtyExporting || !chart.exportSVGElements;
         chart.buttonOffset = 0;
         if (chart.isDirtyExporting) {
             chart.destroyExport();
@@ -1078,7 +1096,7 @@ var Exporting;
     }
     /**
      * Exporting module only. A collection of fixes on the produced SVG to
-     * account for expando properties, browser bugs, VML problems and other.
+     * account for expando properties, browser bugs.
      * Returns a cleaned SVG.
      *
      * @private
@@ -1092,8 +1110,8 @@ var Exporting;
      * @requires modules/exporting
      */
     function sanitizeSVG(svg, options) {
-        var split = svg.indexOf('</svg>') + 6;
-        var html = svg.substr(split);
+        const split = svg.indexOf('</svg>') + 6;
+        let html = svg.substr(split);
         // Remove any HTML added to the container after the SVG (#894, #9087)
         svg = svg.substr(0, split);
         // Move HTML into a foreignObject
@@ -1125,31 +1143,9 @@ var Exporting;
             // Replace HTML entities, issue #347
             .replace(/&nbsp;/g, '\u00A0') // no-break space
             .replace(/&shy;/g, '\u00AD'); // soft hyphen
-        // Further sanitize for oldIE
-        if (this.ieSanitizeSVG) {
-            svg = this.ieSanitizeSVG(svg);
-        }
         return svg;
     }
 })(Exporting || (Exporting = {}));
-/* *
- *
- *  Registry
- *
- * */
-defaultOptions.exporting = merge(ExportingDefaults.exporting, defaultOptions.exporting);
-defaultOptions.lang = merge(ExportingDefaults.lang, defaultOptions.lang);
-// Buttons and menus are collected in a separate config option set called
-// 'navigation'. This can be extended later to add control buttons like
-// zoom and pan right click menus.
-/**
- * A collection of options for buttons and menus appearing in the exporting
- * module or in Stock Tools.
- *
- * @requires     modules/exporting
- * @optionparent navigation
- */
-defaultOptions.navigation = merge(ExportingDefaults.navigation, defaultOptions.navigation);
 /* *
  *
  *  Default Export
@@ -1167,7 +1163,7 @@ export default Exporting;
  *
  * @callback Highcharts.ExportingAfterPrintCallbackFunction
  *
- * @param {Highcharts.Chart} chart
+ * @param {Highcharts.Chart} this
  *        The chart on which the event occured.
  *
  * @param {global.Event} event
@@ -1179,7 +1175,7 @@ export default Exporting;
  *
  * @callback Highcharts.ExportingBeforePrintCallbackFunction
  *
- * @param {Highcharts.Chart} chart
+ * @param {Highcharts.Chart} this
  *        The chart on which the event occured.
  *
  * @param {global.Event} event

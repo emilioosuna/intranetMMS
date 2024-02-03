@@ -1,6 +1,6 @@
 /* *
  *
- *  (c) 2010-2021 Highsoft AS
+ *  (c) 2010-2024 Highsoft AS
  *
  *  Author: Øystein Moseng
  *
@@ -13,8 +13,8 @@
  *
  * */
 'use strict';
-import D from '../../Core/DefaultOptions.js';
-var setOptions = D.setOptions;
+import D from '../../Core/Defaults.js';
+const { setOptions } = D;
 /* *
  *
  *  Theme

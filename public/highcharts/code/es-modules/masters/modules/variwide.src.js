@@ -1,13 +1,16 @@
 /**
- * @license Highcharts JS v10.0.0 (2022-03-07)
+ * @license Highcharts JS v11.3.0 (2024-01-10)
  * @module highcharts/modules/variwide
  * @requires highcharts
  *
  * Highcharts variwide module
  *
- * (c) 2010-2021 Torstein Honsi
+ * (c) 2010-2024 Torstein Honsi
  *
  * License: www.highcharts.com/license
  */
 'use strict';
-import '../../Series/Variwide/VariwideSeries.js';
+import Highcharts from '../../Core/Globals.js';
+import VariwideSeries from '../../Series/Variwide/VariwideSeries.js';
+const G = Highcharts;
+VariwideSeries.compose(G.Axis, G.Tick);

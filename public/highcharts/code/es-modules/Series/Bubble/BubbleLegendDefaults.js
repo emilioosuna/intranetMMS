@@ -1,6 +1,6 @@
 /* *
  *
- *  (c) 2010-2021 Highsoft AS
+ *  (c) 2010-2024 Highsoft AS
  *
  *  Author: Paweł Potaczek
  *
@@ -27,7 +27,7 @@
  * @requires     highcharts-more
  * @optionparent legend.bubbleLegend
  */
-var BubbleLegendDefaults = {
+const BubbleLegendDefaults = {
     /**
      * The color of the ranges borders, can be also defined for an
      * individual range.
@@ -163,9 +163,9 @@ var BubbleLegendDefaults = {
          */
         style: {
             /** @ignore-option */
-            fontSize: '10px',
+            fontSize: '0.9em',
             /** @ignore-option */
-            color: "#000000" /* neutralColor100 */
+            color: "#000000" /* Palette.neutralColor100 */
         },
         /**
          * The x position offset of the label relative to the
