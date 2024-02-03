@@ -6,7 +6,7 @@
 @endphp
 @section('content_header')
 <div class="card card-widget widget-user">
-<div class="widget-user-header text-white" style="background: url({{ asset ('img/photo'.$n.'.png') }}) center center;">
+<div class="widget-user-header text-white" style="background: url({{ asset ('img/photo'.$n.'.png') }}) center center;background-size: 100% 100%;">
 <h3 class="widget-user-username text-right" style="color: black;"><b> Cambio Clave </b></h3>
 </div>
 </div>
