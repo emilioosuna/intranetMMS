@@ -29,10 +29,31 @@ class VendedoreController extends Controller
      */
     public function index()
     {
-        $vendedores = Vendedore::paginate();
+        // $vendedores = Vendedore::select('vendedores.*')->get();
+         $sldd="SELECT ven.*, (
+                    SELECT sum(fvd.canfac)
+                        FROM facturas_vendedor_detalle as fvd
+                        LEFT JOIN facturas_vendedores as fv on fv.id=fvd.fvid
+                        WHERE  YEAR(fv.fdesde)=2024 AND  DATEDIFF (fv.fdhasta, fv.fdesde)=0 AND fvd.vendedor=ven.alias
+                        AND  MONTH(fv.fdesde)=MONTH(CURRENT_DATE())
+                    ) mactual,(
+                        SELECT sum(fvd.canfac)
+                            FROM facturas_vendedor_detalle as fvd
+                            LEFT JOIN facturas_vendedores as fv on fv.id=fvd.fvid
+                            WHERE  YEAR(fv.fdesde)=2024 AND  DATEDIFF (fv.fdhasta, fv.fdesde)=0 AND fvd.vendedor=ven.alias
+                            AND  MONTH(fv.fdesde)=MONTH(CURRENT_DATE())-1
+                    )manterior
+                    from vendedores as ven;";
+        // $datadd=DB::connection('mysql')->select($sldd);
+        $vendedores=collect(DB::connection('mysql')->select($sldd));
 
-        return view('vendedore.index', compact('vendedores'))
-            ->with('i', (request()->input('page', 1) - 1) * $vendedores->perPage());
+        // SELECT fvd.vendedor,fvd.canfac,fv.fdesde,MONTHNAME(fv.fdesde) as mes
+        // FROM facturas_vendedor_detalle as fvd
+        // LEFT JOIN facturas_vendedores as fv on fv.id=fvd.fvid
+        // WHERE  YEAR(fv.fdesde)=2024 AND  DATEDIFF (fv.fdhasta, fv.fdesde)=0 AND fvd.vendedor='1630 - FAENNYS GODOY'
+        // AND  MONTH(fv.fdesde)=MONTH(CURRENT_DATE()) OR MONTH(fv.fdesde)=MONTH(CURRENT_DATE());
+        return view('vendedore.index', compact('vendedores'))->with('i',0);
+            // ->with('i', (request()->input('page', 1) - 1) * $vendedores->perPage());
     }
 
     /**

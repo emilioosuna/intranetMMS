@@ -121,9 +121,7 @@
 @stop
 @push('js')
 <script src="{{ asset('highcharts/code/highcharts.js') }}"></script>
-<script src="{{ asset('highcharts/code/modules/data.js') }}"></script>
-<script src="{{ asset('highcharts/code/modules/drilldown.js') }}"></script>
-{{-- <script src="{{ asset('highcharts/code/modules/series-label.js') }}"></script> --}}
+<script src="{{ asset('highcharts/code/modules/series-label.js') }}"></script>
 <script src="{{ asset('highcharts/code/modules/exporting.js') }}"></script>
 <script src="{{ asset('highcharts/code/modules/export-data.js') }}"></script>
 <script src="{{ asset('highcharts/code/modules/accessibility.js') }}"></script>

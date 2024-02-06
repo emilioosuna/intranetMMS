@@ -58,8 +58,8 @@
 										<th>Codigo</th>
 										<th>Cedula</th>
 										<th>Nombre</th>
-										<th>Telefono</th>
-										<th>Correo</th>
+										<th>F. Mes Anterior</th>
+										<th>F. Actuales</th>
 										<th>Imagen</th>
 
                                         <th></th>
@@ -74,8 +74,8 @@
 											<td>{{ $vendedore->codigo }}</td>
 											<td>{{ $vendedore->cedula }}</td>
 											<td>{{ $vendedore->nombre }}</td>
-											<td>{{ $vendedore->telefono }}</td>
-											<td>{{ $vendedore->correo }}</td>
+											<td>{{ $vendedore->manterior }}</td>
+											<td>{{ $vendedore->mactual }}</td>
 											<td>{{-- {{ $vendedore->imagen }} --}}
                                                 <a href="{{ asset($vendedore->imagen) }}" data-toggle="lightbox" data-title="{{ $vendedore->alias }}" data-gallery="gallery">
                                                     <img src="{{ asset($vendedore->imagen) }}" class="img-fluid " alt="{{ $vendedore->alias }}" >
@@ -103,7 +103,7 @@
                         </div>
                     </div>
                 </div>
-                {!! $vendedores->links() !!}
+                {{-- {!! $vendedores->links() !!} --}}
             </div>
         </div>
     </div>
@@ -142,7 +142,7 @@ $(function () {
           'paging'      : true,
           'lengthChange': true,
           'searching'   : true,
-          'ordering'    : false,
+          'ordering'    : true,
           'info'        : true,
           'autoWidth'   : true,
 

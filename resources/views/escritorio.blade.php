@@ -3,7 +3,7 @@
 @section('plugins.Sweetalert2',true)
 @section('css')
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-  <link rel="stylesheet" href="{{ asset('highcharts/code/css/highcharts.css') }}">
+  {{-- <link rel="stylesheet" href="{{ asset('highcharts/code/css/highcharts.css') }}"> --}}
 @endsection
 @php
  $n = rand(1,3);
