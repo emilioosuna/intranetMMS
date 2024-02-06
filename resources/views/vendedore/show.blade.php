@@ -125,7 +125,7 @@
 <script src="{{ asset('highcharts/code/modules/exporting.js') }}"></script>
 <script src="{{ asset('highcharts/code/modules/export-data.js') }}"></script>
 <script src="{{ asset('highcharts/code/modules/accessibility.js') }}"></script>
-
+<script src="{{ asset('highcharts/code/modules/drilldown.js') }}"></script>
 <script>
     Highcharts.chart('container', {
     chart: {

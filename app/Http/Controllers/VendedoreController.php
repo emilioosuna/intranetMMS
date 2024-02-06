@@ -29,18 +29,19 @@ class VendedoreController extends Controller
      */
     public function index()
     {
+         $year=date('Y');
         // $vendedores = Vendedore::select('vendedores.*')->get();
          $sldd="SELECT ven.*, (
                     SELECT sum(fvd.canfac)
                         FROM facturas_vendedor_detalle as fvd
                         LEFT JOIN facturas_vendedores as fv on fv.id=fvd.fvid
-                        WHERE  YEAR(fv.fdesde)=2024 AND  DATEDIFF (fv.fdhasta, fv.fdesde)=0 AND fvd.vendedor=ven.alias
+                        WHERE  YEAR(fv.fdesde)=$year AND  DATEDIFF (fv.fdhasta, fv.fdesde)=0 AND fvd.vendedor=ven.alias
                         AND  MONTH(fv.fdesde)=MONTH(CURRENT_DATE())
                     ) mactual,(
                         SELECT sum(fvd.canfac)
                             FROM facturas_vendedor_detalle as fvd
                             LEFT JOIN facturas_vendedores as fv on fv.id=fvd.fvid
-                            WHERE  YEAR(fv.fdesde)=2024 AND  DATEDIFF (fv.fdhasta, fv.fdesde)=0 AND fvd.vendedor=ven.alias
+                            WHERE  YEAR(fv.fdesde)=$year AND  DATEDIFF (fv.fdhasta, fv.fdesde)=0 AND fvd.vendedor=ven.alias
                             AND  MONTH(fv.fdesde)=MONTH(CURRENT_DATE())-1
                     )manterior
                     from vendedores as ven;";
