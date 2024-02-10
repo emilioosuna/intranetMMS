@@ -184,7 +184,7 @@ $(function () {
       event.preventDefault();
       $(this).ekkoLightbox({
         size:'xl',
-        alwaysShowClose: true
+        alwaysShowClose: true,
       });
     });
   })
