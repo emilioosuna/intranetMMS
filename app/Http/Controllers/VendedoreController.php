@@ -44,7 +44,7 @@ class VendedoreController extends Controller
                             WHERE  YEAR(fv.fdesde)=$year AND  DATEDIFF (fv.fdhasta, fv.fdesde)=0 AND fvd.vendedor=ven.alias
                             AND  MONTH(fv.fdesde)=MONTH(CURRENT_DATE())-1
                     )manterior
-                    from vendedores as ven;";
+                    from vendedores as ven ORDER By mactual DESC;";
         // $datadd=DB::connection('mysql')->select($sldd);
         $vendedores=collect(DB::connection('mysql')->select($sldd));
 

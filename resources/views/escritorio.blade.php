@@ -108,10 +108,30 @@
 <script src="{{ asset('highcharts/code/modules/exporting.js') }}"></script>
 <script src="{{ asset('highcharts/code/modules/export-data.js') }}"></script>
 <script src="{{ asset('highcharts/code/modules/accessibility.js') }}"></script>
+<script src="{{ asset('highcharts/code/modules/highcharts-3d.js') }}"></script>
+<script>
+// Radialize the colors
+Highcharts.setOptions({
+    colors: Highcharts.map(Highcharts.getOptions().colors, function (color) {
+        return {
+            radialGradient: {
+                cx: 0.5,
+                cy: 0.3,
+                r: 0.7
+            },
+            stops: [
+                [0, color],
+                [1, Highcharts.color(color).brighten(-0.3).get('rgb')] // darken
+            ]
+        };
+    })
+});
+</script>
 <script type="text/javascript">
+
 Highcharts.chart('container1', {
 chart: {
-    type: 'column'
+    type: 'column',
   },
   title: {
     text: 'Ventas Generales MS.'
@@ -175,22 +195,7 @@ chart: {
 });
         </script>
         <script type="text/javascript">
-// Radialize the colors
-Highcharts.setOptions({
-    colors: Highcharts.map(Highcharts.getOptions().colors, function (color) {
-        return {
-            radialGradient: {
-                cx: 0.5,
-                cy: 0.3,
-                r: 0.7
-            },
-            stops: [
-                [0, color],
-                [1, Highcharts.color(color).brighten(-0.3).get('rgb')] // darken
-            ]
-        };
-    })
-});
+
 
 // Build the chart
 Highcharts.chart('container2', {
